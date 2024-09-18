@@ -57,7 +57,7 @@ check_and_start_redis() {
 # Function to start Celery
 start_celery() {
     echo "Starting Celery..."
-    celery -A src.celery_tasks.celery_app worker -l INFO -E &
+    celery -A src.celery_tasks.celery_app worker --loglevel=INFO -E &
     sleep 5  # Wait for Celery to start
 }
 
@@ -71,7 +71,7 @@ start_celery_beat() {
 # Function to start Celery Flower
 start_celery_flower() {
     echo "Starting Celery flower..."
-    celery -A src.celery_tasks.celery_app flower --port=5551 --l INFO -E &
+    celery -A src.celery_tasks.celery_app flower --port=5800 &
     sleep 5  # Wait for Celery Flower to start
 }
 

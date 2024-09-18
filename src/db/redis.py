@@ -1,7 +1,12 @@
 from typing import Optional
 import uuid
 import redis.asyncio as aioredis
-from src.config.settings import Config
+from src.config.settings import (
+    Config,
+    broker_url,
+    result_backend,
+    broker_connection_retry_on_startup,
+)
 
 # Redis connection pool settings
 REDIS_POOL_SIZE = 10
@@ -11,31 +16,37 @@ VERIFICATION_CODE_EXPIRY = 900  # 15 minutes
 
 # Initialize Redis with connection pooling
 redis_pool = aioredis.ConnectionPool.from_url(
-    Config.REDIS_URL, max_connections=REDIS_POOL_SIZE, socket_timeout=REDIS_TIMEOUT
+    broker_url, max_connections=REDIS_POOL_SIZE, socket_timeout=REDIS_TIMEOUT
 )
 redis_client = aioredis.Redis(connection_pool=redis_pool)
 
+
 # Password Reset Code
-async def store_password_reset_code(user_id: uuid.UUID, code: str, expiry: int = VERIFICATION_CODE_EXPIRY):
+async def store_password_reset_code(
+    user_id: uuid.UUID, code: str, expiry: int = VERIFICATION_CODE_EXPIRY
+):
     await redis_client.set(f"reset_code:{user_id}", code, ex=expiry)
+
 
 # Get the reset code from Redis
 async def get_password_reset_code(user_id: uuid.UUID) -> Optional[str]:
     return await redis_client.get(f"reset_code:{user_id}")
 
+
 # Email Verification Code
 async def store_verification_code(user_id: uuid.UUID, code: str) -> None:
     """Stores the verification code in Redis with an expiry time."""
     await redis_client.hset(
-        f"verification_code:{user_id}",
-        mapping={"code": code, "verified": "false"}
+        f"verification_code:{user_id}", mapping={"code": code, "verified": "false"}
     )
     await redis_client.expire(f"verification_code:{user_id}", VERIFICATION_CODE_EXPIRY)
+
 
 async def get_verification_status(user_id: uuid.UUID) -> dict:
     """Retrieves the verification code and status from Redis."""
     data = await redis_client.hgetall(f"verification_code:{user_id}")
-    return {k.decode('utf-8'): v.decode('utf-8') for k, v in data.items()}
+    return {k.decode("utf-8"): v.decode("utf-8") for k, v in data.items()}
+
 
 async def mark_email_verified(user_id: uuid.UUID) -> None:
     """Marks the email as verified."""

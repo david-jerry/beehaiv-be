@@ -22,9 +22,7 @@ class LocalConfig(BaseConfig):
     DOMAIN: str
 
     model_config = SettingsConfigDict(
-        env_file=".env.local",
-        extra="ignore",
-        env_file_encoding='utf-8'
+        env_file=".env.local", extra="ignore", env_file_encoding="utf-8"
     )
 
 

@@ -4,9 +4,9 @@ from pydantic_settings import SettingsConfigDict
 
 class ProductionConfig(BaseConfig):
     DATABASE_URL: str
+    REDIS_URL: str
     CELERY_BROKER_URL: str
     CELERY_RESULT_BACKEND: str
-    REDIS_URL: str
     MAIL_USERNAME: str
     MAIL_PASSWORD: str
     MAIL_FROM: str
@@ -16,15 +16,13 @@ class ProductionConfig(BaseConfig):
     MAIL_TLS: bool
     MAIL_SSL: bool
     MAIL_STARTTLS: bool = True
-    MAIL_SSL_TLS: bool = False
+    MAIL_SSL_TLS: bool = True
     USE_CREDENTIALS: bool = True
     VALIDATE_CERTS: bool = True
     DOMAIN: str
 
     model_config = SettingsConfigDict(
-        env_file=".env.production",
-        extra="ignore",
-        env_file_encoding='utf-8'
+        env_file=".env.production", extra="ignore", env_file_encoding="utf-8"
     )
 
 
