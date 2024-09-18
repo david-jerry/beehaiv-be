@@ -6,8 +6,16 @@ from src.utils.logger import LOGGER
 from .errors import register_all_errors
 from .middleware import register_middleware
 
-from src.app.auth.views import auth_router, user_router, business_router, card_router, bank_router
+from src.app.auth.views import (
+    auth_router,
+    user_router,
+    business_router,
+    card_router,
+    bank_router,
+)
 from src.app.transactions.views import transaction_router
+from src.app.loans.views import loan_router
+
 
 version = "v1"
 
@@ -40,14 +48,14 @@ app = FastAPI(
     lifespan=life_span,
     license_info={
         "name": "MIT License",
-        "url": "https://github.com/jerry-david/beehaiv-be/LICENSE",
+        "url": "https://github.com/david-jerry/beehaiv-be/blob/main/LICENSE",
     },
     contact={
         "name": "Jeremiah David",
-        "url": "https://github.com/jerry-david",
+        "url": "https://github.com/david-jerry",
         "email": "jeremiahedavid@gmail.com",
     },
-    terms_of_service="https://github.com/jerry-david/beehaiv-be/TERMS.md",
+    terms_of_service="https://github.com/david-jerry/beehaiv-be/blob/main/TERMS.md",
     openapi_url=f"{version_prefix}/openapi.json",
     docs_url=f"{version_prefix}/docs",
     redoc_url=f"{version_prefix}/redocs",
@@ -65,11 +73,16 @@ app.include_router(
     business_router, prefix=f"{version_prefix}/businesses", tags=["businesses"]
 )
 app.include_router(
-    bank_router, prefix=f"{version_prefix}/business-bank-accounts", tags=["businesses banks"]
+    bank_router,
+    prefix=f"{version_prefix}/business-bank-accounts",
+    tags=["businesses banks"],
 )
 app.include_router(
-    card_router, prefix=f"{version_prefix}/business-cards", tags=["businesses bank cards"]
+    card_router,
+    prefix=f"{version_prefix}/business-cards",
+    tags=["businesses bank cards"],
 )
+app.include_router(loan_router, prefix=f"{version_prefix}/loans", tags=["loans"])
 app.include_router(
     transaction_router, prefix=f"{version_prefix}/transactions", tags=["transaction"]
 )

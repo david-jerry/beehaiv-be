@@ -114,44 +114,51 @@ start_mailpit() {
 
 # Main function to execute the startup process
 main() {
-    # Check if Pipenv environment is active
-    if ! pipenv --venv >/dev/null 2>&1; then
-        echo "Pipenv environment is not active. Activating Pipenv..."
-        pipenv shell || { echo "Failed to activate Pipenv shell."; exit 1; }
-    else
-        echo "Pipenv environment is already active."
-    fi
+    if [[ "$ENVIRONMENT" == "local" ]]; then
+        check_postgres_db "beehaiv"
+
+        # Check if Pipenv environment is active
+        if ! pipenv --venv >/dev/null 2>&1; then
+            echo "Pipenv environment is not active. Activating Pipenv..."
+            pipenv shell || { echo "Failed to activate Pipenv shell."; exit 1; }
+        else
+            echo "Pipenv environment is already active."
+        fi
 
 
-    # Check if Pipfile.lock exists to avoid reinstalling dependencies
-    if [[ ! -f "Pipfile.lock" ]]; then
-        echo "Pipfile.lock not found. Installing dependencies..."
-        if pipenv install; then
-            echo "Dependencies installed successfully."
+        # Check if Pipfile.lock exists to avoid reinstalling dependencies
+        if [[ ! -f "Pipfile.lock" ]]; then
+            echo "Pipfile.lock not found. Installing dependencies..."
+            if pipenv install; then
+                echo "Dependencies installed successfully."
+            else
+                echo "Failed to install dependencies. Continuing with the script..."
+            fi
         else
-            echo "Failed to install dependencies. Continuing with the script..."
+            echo "Pipfile.lock found. Ensuring environment is up-to-date..."
+            if pipenv sync; then
+                echo "Environment is up-to-date."
+            else
+                echo "Failed to sync dependencies. Continuing with the script..."
+            fi
         fi
     else
-        echo "Pipfile.lock found. Ensuring environment is up-to-date..."
-        if pipenv sync; then
-            echo "Environment is up-to-date."
-        else
-            echo "Failed to sync dependencies. Continuing with the script..."
-        fi
+        echo "ENVIRONMENT is in production mode."
     fi
 
 
     check_and_start_redis
-    check_postgres_db "beehaiv"
     start_celery
-    start_celery_flower
     start_fastapi
 
+
     if [[ "$ENVIRONMENT" == "local" ]]; then
+        # Start Celery Flower
+        start_celery_flower
         # Start Mailpit server if ENVIRONMENT is local
         start_mailpit &
     else
-        echo "ENVIRONMENT is in production mode. Skipping Mailpit server start."
+        echo "ENVIRONMENT is in production mode. Skipping Mailpit server start and Celery Flower."
     fi
 }
 

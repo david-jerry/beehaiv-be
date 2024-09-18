@@ -24,6 +24,7 @@ from src.errors import (
 
 class TransactionService:
     async def get_all_transactions(
+        self,
         session: AsyncSession,
         user: User,
     ):
@@ -36,6 +37,7 @@ class TransactionService:
         return result
 
     async def get_transaction_by_uid(
+        self,
         session: AsyncSession,
         user: User,
         uid: uuid.UUID,
@@ -52,7 +54,7 @@ class TransactionService:
         return transaction
 
     async def create_new_transaction(
-        session: AsyncSession, user: User, transfer_data: TransactionCreate
+        self, session: AsyncSession, user: User, transfer_data: TransactionCreate
     ):
         transfer_data_dict = transfer_data.model_dump()
         transaction = TransactionHistory(**transfer_data_dict)
@@ -67,7 +69,7 @@ class TransactionService:
         return transaction
 
     async def transfer_to_domestic_account(
-        session: AsyncSession, user: User, transfer_data: DomesticTransferSchema
+        self, session: AsyncSession, user: User, transfer_data: DomesticTransferSchema
     ) -> TransactionHistory:
         transfer_data_dict = transfer_data.model_dump()
 
@@ -89,7 +91,10 @@ class TransactionService:
         return new_transaction
 
     async def transfer_to_international_account(
-        session: AsyncSession, user: User, transfer_data: InternationalTransferSchema
+        self,
+        session: AsyncSession,
+        user: User,
+        transfer_data: InternationalTransferSchema,
     ) -> TransactionHistory:
         transfer_data_dict = transfer_data.model_dump()
 
@@ -111,7 +116,7 @@ class TransactionService:
         return new_transaction
 
     async def withdraw_from_account(
-        session: AsyncSession, user: User, transfer_data: WithdrawalSchema
+        self, session: AsyncSession, user: User, transfer_data: WithdrawalSchema
     ) -> TransactionHistory:
         transfer_data_dict = transfer_data.model_dump()
 

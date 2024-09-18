@@ -6,6 +6,7 @@ import uuid
 from typing import List, Optional
 
 from src.app.transactions.models import TransactionHistory
+from src.app.loans.models import Loan
 
 
 # Enum for user roles
@@ -66,6 +67,10 @@ class User(SQLModel, table=True):
         sa_relationship_kwargs={"cascade": "all, delete-orphan", "lazy": "selectin"},
     )
     transactions: List["TransactionHistory"] = Relationship(
+        back_populates="user",
+        sa_relationship_kwargs={"cascade": "all, delete-orphan", "lazy": "selectin"},
+    )
+    loans: List["Loan"] = Relationship(
         back_populates="user",
         sa_relationship_kwargs={"cascade": "all, delete-orphan", "lazy": "selectin"},
     )

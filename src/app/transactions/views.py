@@ -21,10 +21,10 @@ from src.app.auth.dependencies import (
     get_current_user,
 )
 from .schemas import (
-    TransactionCreate,
-    TransactionRead,
     DomesticTransferSchema,
     InternationalTransferSchema,
+    TransactionCreate,
+    TransactionRead,
     TransactionUpdate,
     WithdrawalSchema,
 )
@@ -54,9 +54,20 @@ async def create_transaction_record(
     session: AsyncSession = Depends(get_session),
 ):
     """
-    Create a new transaction records
-    body:
-        transaction_data: TransactionCreate
+    Create a new transaction record.
+
+    This endpoint creates a new transaction record in the database based on the
+    provided `transaction_data`. The authenticated user is required, and the
+    transaction will be associated with that user.
+
+    Args:
+    - transaction_data (TransactionCreate): The details of the transaction to be created.
+    - bg_tasks (BackgroundTasks): For any background tasks related to transaction processing.
+    - user (User): The current authenticated user.
+    - session (AsyncSession): The current database session.
+
+    Returns:
+    - A JSON response containing a success message and the details of the created transaction.
     """
     transaction: TransactionHistory = await transaction_service.create_new_transaction(
         session, user, transaction_data
@@ -64,7 +75,7 @@ async def create_transaction_record(
 
     return {
         "message": "Transaction Created!",
-        "transaction": transaction,
+        "transaction": transaction
     }
 
 
@@ -82,9 +93,28 @@ async def make_domestic_transfers(
     session: AsyncSession = Depends(get_session),
 ):
     """
-    Create a new transaction records
-    body:
-        transaction_data: TransactionCreate
+    Make a domestic transfer between accounts.
+
+    This endpoint facilitates transferring funds domestically to another bank account.
+    The user's transfer PIN is required for security validation. If the bank account
+    is found and has sufficient funds, the transfer will be processed, and the balance
+    will be updated accordingly.
+
+    Args:
+    - transaction_data (DomesticTransferSchema): The details of the domestic transfer.
+    - transfer_pin (str): The user's transfer PIN to authorize the transaction.
+    - account_number (str): The account number to transfer to.
+    - bg_tasks (BackgroundTasks): For any background tasks related to transfer processing.
+    - user (User): The current authenticated user.
+    - session (AsyncSession): The current database session.
+
+    Raises:
+    - InvalidTransactionPin: If the provided transfer PIN is incorrect.
+    - BankAccountNotFound: If the recipient bank account is not found.
+    - InsufficientFunds: If the user's account does not have enough balance for the transfer.
+
+    Returns:
+    - A JSON response containing a success message and the details of the completed transfer.
     """
     can_transfer = verify_password(transfer_pin, user.transfer_pin_hash)
     if not can_transfer:
@@ -106,7 +136,7 @@ async def make_domestic_transfers(
         )
     )
 
-    if transaction:
+    if transaction is not None:
         bank_account.balance -= transaction_data.amount
         await session.commit()
         await session.refresh(bank_account)
@@ -131,9 +161,27 @@ async def make_international_transfers(
     session: AsyncSession = Depends(get_session),
 ):
     """
-    Create a new transaction records
-    body:
-        transaction_data: TransactionCreate
+    Make an international transfer between accounts.
+
+    This endpoint facilitates transferring funds internationally to another bank account.
+    The user's transfer PIN is required for security validation. The recipient bank account
+    must exist and have enough funds for the transfer.
+
+    Args:
+    - transaction_data (InternationalTransferSchema): The details of the international transfer.
+    - transfer_pin (str): The user's transfer PIN to authorize the transaction.
+    - account_number (str): The account number to transfer to.
+    - bg_tasks (BackgroundTasks): For any background tasks related to transfer processing.
+    - user (User): The current authenticated user.
+    - session (AsyncSession): The current database session.
+
+    Raises:
+    - InvalidTransactionPin: If the provided transfer PIN is incorrect.
+    - BankAccountNotFound: If the recipient bank account is not found.
+    - InsufficientFunds: If the user's account does not have enough balance for the transfer.
+
+    Returns:
+    - A JSON response containing a success message and the details of the completed transfer.
     """
     can_transfer = verify_password(transfer_pin, user.transfer_pin_hash)
     if not can_transfer:
@@ -155,7 +203,7 @@ async def make_international_transfers(
         )
     )
 
-    if transaction:
+    if transaction is not None:
         bank_account.balance -= transaction_data.amount
         await session.commit()
         await session.refresh(bank_account)
@@ -178,9 +226,27 @@ async def withdraw_from_balance(
     session: AsyncSession = Depends(get_session),
 ):
     """
-    Create a new transaction records
-    body:
-        transaction_data: TransactionCreate
+    Withdraw funds from the user's bank account.
+
+    This endpoint allows the user to withdraw funds from their bank account.
+    The user's transfer PIN is required to authorize the withdrawal. The withdrawal
+    will only be processed if the user has sufficient funds.
+
+    Args:
+    - transaction_data (WithdrawalSchema): The details of the withdrawal transaction.
+    - transfer_pin (str): The user's transfer PIN to authorize the transaction.
+    - account_number (str): The account number to withdraw from.
+    - bg_tasks (BackgroundTasks): For any background tasks related to withdrawal processing.
+    - user (User): The current authenticated user.
+    - session (AsyncSession): The current database session.
+
+    Raises:
+    - InvalidTransactionPin: If the provided transfer PIN is incorrect.
+    - BankAccountNotFound: If the account is not found.
+    - InsufficientFunds: If the account does not have enough balance for the withdrawal.
+
+    Returns:
+    - A JSON response containing a success message and the details of the completed withdrawal.
     """
     can_transfer = verify_password(transfer_pin, user.transfer_pin_hash)
     if not can_transfer:
@@ -200,7 +266,7 @@ async def withdraw_from_balance(
         session, user, transaction_data
     )
 
-    if transaction:
+    if transaction is not None:
         bank_account.balance -= transaction_data.amount
         await session.commit()
         await session.refresh(bank_account)
@@ -223,9 +289,25 @@ async def update_transaction(
     session: AsyncSession = Depends(get_session),
 ):
     """
-    Create a new transaction records
-    body:
-        transaction_data: TransactionCreate
+    Update an existing transaction.
+
+    This endpoint allows the user to update an existing transaction record.
+    The transaction must belong to the authenticated user. Updates are reflected in
+    the database, and the account balance is adjusted based on the transaction status.
+
+    Args:
+    - transaction_data (TransactionUpdate): The updated transaction details.
+    - account_number (str): The account number associated with the transaction.
+    - uid (uuid.UUID): The unique identifier of the transaction to be updated.
+    - bg_tasks (BackgroundTasks): For any background tasks related to transaction processing.
+    - user (User): The current authenticated user.
+    - session (AsyncSession): The current database session.
+
+    Raises:
+    - BankAccountNotFound: If the bank account is not found.
+
+    Returns:
+    - A JSON response containing a success message and the updated transaction details.
     """
     bank_account = await business_service.get_bank_by_account_number(
         account_number, session
@@ -235,7 +317,7 @@ async def update_transaction(
         raise BankAccountNotFound()
 
     transaction: TransactionHistory = await transaction_service.update_transaction(
-        uid, transaction_data, session
+        uid, user, transaction_data, session
     )
 
     if (
@@ -265,9 +347,16 @@ async def all_transactions(
     session: AsyncSession = Depends(get_session),
 ):
     """
-    Create a new transaction records
-    body:
-        transaction_data: TransactionCreate
+    Retrieve all transactions for the authenticated user.
+
+    This endpoint returns a list of all transactions associated with the authenticated user.
+
+    Args:
+    - user (User): The current authenticated user.
+    - session (AsyncSession): The current database session.
+
+    Returns:
+    - A JSON response containing a list of all transactions for the user.
     """
     transactions = await transaction_service.get_all_transactions(session, user)
 
@@ -286,9 +375,21 @@ async def get_transaction(
     session: AsyncSession = Depends(get_session),
 ):
     """
-    Create a new transaction records
-    body:
-        transaction_data: TransactionCreate
+    Retrieve details of a specific transaction.
+
+    This endpoint returns the details of a transaction identified by its unique
+    identifier `uid`. The transaction must belong to the authenticated user.
+
+    Args:
+    - uid (uuid.UUID): The unique identifier of the transaction.
+    - user (User): The current authenticated user.
+    - session (AsyncSession): The current database session.
+
+    Raises:
+    - TransactionNotFound: If the transaction does not exist for the authenticated user.
+
+    Returns:
+    - A JSON response containing the details of the requested transaction.
     """
     transaction: Optional[TransactionHistory] = (
         await transaction_service.get_transaction_by_uid(session, user, uid)
