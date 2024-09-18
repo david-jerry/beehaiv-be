@@ -4,138 +4,199 @@ from fastapi.responses import JSONResponse
 from fastapi import FastAPI, status
 from sqlalchemy.exc import SQLAlchemyError
 
+
 class BeehaivException(Exception):
     """This is the base class for all Beehaiv errors."""
+
     pass
+
 
 # Authentication and Authorization Errors
 class InvalidToken(BeehaivException):
     """User has provided an invalid or expired token."""
+
     pass
+
 
 class RevokedToken(BeehaivException):
     """User has provided a token that has been revoked."""
+
     pass
+
 
 class AccessTokenRequired(BeehaivException):
     """User has provided a refresh token when an access token is needed."""
+
     pass
+
 
 class RefreshTokenRequired(BeehaivException):
     """User has provided an access token when a refresh token is needed."""
+
     pass
+
 
 # User-related Errors
 class UserAlreadyExists(BeehaivException):
     """User has provided an email for a user who exists during sign up."""
+
     pass
+
 
 class UserNotFound(BeehaivException):
     """User not found."""
+
     pass
+
 
 class InvalidCredentials(BeehaivException):
     """User has provided wrong email or password during log in."""
+
     pass
+
 
 class InsufficientPermission(BeehaivException):
     """User does not have the necessary permissions to perform an action."""
+
     pass
+
 
 class AccountNotVerified(BeehaivException):
     """Account not yet verified."""
+
     pass
+
 
 # Transaction Errors
 class TransactionNotFound(BeehaivException):
     """Transaction not found."""
+
     pass
+
 
 class InvalidTransactionPin(BeehaivException):
     """You have inputted a wrong transfer pin."""
+
     pass
+
 
 class InvalidTransactionAmount(BeehaivException):
     """Invalid transaction amount specified."""
+
     pass
+
 
 # Blog Post Errors
 class BlogPostNotFound(BeehaivException):
     """Blog post not found."""
+
     pass
+
 
 class BlogPostAlreadyExists(BeehaivException):
     """Blog post with the given title or slug already exists."""
+
     pass
+
 
 # Debit Card Errors
 class DebitCardNotFound(BeehaivException):
     """Debit card not found."""
+
     pass
+
 
 class CardLimitExceeded(BeehaivException):
     """Debit card transaction exceeds the allowed limit."""
+
     pass
+
 
 # Bank Account Errors
 class BankAccountNotFound(BeehaivException):
     """Bank account not found."""
+
     pass
+
 
 class InsufficientFunds(BeehaivException):
     """Bank account has insufficient funds."""
+
     pass
+
 
 # Loan Errors
 class LoanNotFound(BeehaivException):
     """Loan not found."""
+
     pass
+
 
 class LoanAlreadyExists(BeehaivException):
     """Loan with the given identifier already exists."""
+
     pass
+
 
 class LoanRepaymentError(BeehaivException):
     """Error processing loan repayment."""
+
     pass
+
 
 # Business Registration Errors
 class BusinessRegistrationFailed(BeehaivException):
     """Business registration failed due to invalid or missing information."""
+
     pass
+
 
 class BusinessNotFound(BeehaivException):
     """Business not found."""
+
     pass
+
 
 class BusinessAlreadyExists(BeehaivException):
     """Business with the given name or registration number already exists."""
+
     pass
+
 
 # Business Number Errors
 class InvalidBusinessNumber(BeehaivException):
     """Invalid business number provided."""
+
     pass
+
 
 class BusinessNumberNotFound(BeehaivException):
     """Business number not found in records."""
+
     pass
+
 
 class BusinessNumberAlreadyExists(BeehaivException):
     """Business number already associated with another business."""
+
     pass
+
 
 # General Business Errors
 class UnauthorizedBusinessAccess(BeehaivException):
     """Unauthorized access attempt to business data."""
+
     pass
+
 
 def create_exception_handler(
     status_code: int, initial_detail: Any
 ) -> Callable[[Request, Exception], JSONResponse]:
     async def exception_handler(request: Request, exc: BeehaivException):
         return JSONResponse(content=initial_detail, status_code=status_code)
+
     return exception_handler
+
 
 def register_all_errors(app: FastAPI):
     # User-related Error Handlers

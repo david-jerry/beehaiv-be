@@ -1,4 +1,4 @@
-from typing import Any, Callable, List
+from typing import Any, List
 
 from fastapi import Depends, Request, status
 from fastapi.exceptions import HTTPException
@@ -6,7 +6,7 @@ from fastapi.security import HTTPBearer
 from fastapi.security.http import HTTPAuthorizationCredentials
 from sqlmodel.ext.asyncio.session import AsyncSession
 
-from src.app.auth.mails import send_blocked_email, send_verification_email
+from src.app.auth.mails import send_blocked_email
 from src.db.db import get_session
 from src.app.auth.models import User, UserRole
 from src.db.redis import token_in_blocklist
@@ -18,7 +18,6 @@ from src.errors import (
     RefreshTokenRequired,
     AccessTokenRequired,
     InsufficientPermission,
-    AccountNotVerified,
 )
 
 user_service = UserService()
@@ -75,10 +74,10 @@ async def get_current_user(
     user = await user_service.get_user_by_email(user_email, session)
 
     if user.is_blocked:
-        await send_blocked_email(user, user.domain)
+        await send_blocked_email(user)
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="Account under surveillance. Please contact customer care or your account manager for rectification."
+            detail="Account under surveillance. Please contact customer care or your account manager for rectification.",
         )
 
     # Check if the user has at least one verified email
@@ -87,7 +86,7 @@ async def get_current_user(
         await send_verification_code(user, user.domain)
         raise HTTPException(
             status_code=403,
-            detail="Email not verified. A verification email has been sent to your registered email address."
+            detail="Email not verified. A verification email has been sent to your registered email address.",
         )
 
     return user

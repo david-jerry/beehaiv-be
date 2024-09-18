@@ -1,31 +1,40 @@
-from datetime import datetime, timedelta
-from typing import Optional
-from uuid import UUID, uuid4
 import random
 import uuid
+
+from datetime import datetime, timedelta
+from typing import Optional
+from uuid import UUID
 
 from fastapi import HTTPException, UploadFile
 from sqlmodel import select
 from sqlmodel.ext.asyncio.session import AsyncSession
 
-from src.app.auth.mails import send_card_pin, send_new_bank_account_details, send_reset_password_email
+from src.app.auth.mails import send_card_pin, send_new_bank_account_details
 from src.db.cloudinary import upload_image
-from src.db.redis import store_password_reset_code
 from src.errors import BankAccountNotFound, InsufficientPermission
 from src.utils.logger import LOGGER
 
 from .models import BankAccount, Card, User, BusinessProfile, UserRole, VerifiedEmail
 
-from .schemas import UserCreate, BusinessProfileCreate, BusinessProfileUpdate, UserUpdate, VerifiedEmailCreate
+from .schemas import (
+    UserCreate,
+    BusinessProfileCreate,
+    BusinessProfileUpdate,
+)
+
 from .utils import generate_passwd_hash, send_verification_code
 
 
 class UserService:
-    async def get_all_users(self, user: User,  domain: str, session: AsyncSession):
+    async def get_all_users(self, user: User, domain: str, session: AsyncSession):
         if user.role not in (UserRole.MANAGER, UserRole.ADMIN):
             raise InsufficientPermission()
 
-        statement = select(User).where(User.domain == domain) if user.role == UserRole.MANAGER else select(User)
+        statement = (
+            select(User).where(User.domain == domain)
+            if user.role == UserRole.MANAGER
+            else select(User)
+        )
 
         result = await session.exec(statement)
 
@@ -54,21 +63,33 @@ class UserService:
 
         return True if user is not None else False
 
-    async def create_user(self, user_data: UserCreate, role: Optional[str], domain: str, session: AsyncSession):
+    async def create_user(
+        self,
+        user_data: UserCreate,
+        role: Optional[str],
+        domain: str,
+        session: AsyncSession,
+    ):
         # Convert the user_data to a dictionary
         user_data_dict = user_data.model_dump()
 
         # Convert role string to UserRole enum
-        role_str = role if role is not None else 'user'  # Default to "user" if no role is provided
+        role_str = (
+            role if role is not None else "user"
+        )  # Default to "user" if no role is provided
         LOGGER.debug(f"Registration Role: {role_str}")
-        role_enum = UserRole.from_str(role_str)  # Convert to upper case to match the enum values
+        role_enum = UserRole.from_str(
+            role_str
+        )  # Convert to upper case to match the enum values
 
         # Create a new user with the given data
         new_user = User(**user_data_dict)
         new_user.domain = domain
         new_user.password_hash = generate_passwd_hash(user_data_dict["password"])
         new_user.role = role_enum  # Set the role using the UserRole enum
-        new_user.transfer_pin_hash = generate_passwd_hash(str(random.randint(1000, 9999)))
+        new_user.transfer_pin_hash = generate_passwd_hash(
+            str(random.randint(1000, 9999))
+        )
 
         # Add and commit the new user to the session
         session.add(new_user)
@@ -81,9 +102,12 @@ class UserService:
 
         return new_user, code
 
-    async def save_verified_email(self, user: User, email_data: str, session: AsyncSession):
+    async def save_verified_email(
+        self, user: User, email_data: str, session: AsyncSession
+    ):
         new_email = VerifiedEmail(email=email_data)
         new_email.user_id = user.uid
+        new_email.user = user
 
         session.add(new_email)
         await session.commit()
@@ -93,11 +117,11 @@ class UserService:
         await session.refresh(user)
         return user
 
-    async def update_user(self, user:User , user_data: dict, session:AsyncSession):
-        if user_data.get('transfer_pin'):
-            user.transfer_pin_hash = generate_passwd_hash(user_data['transfer_pin'])
-        elif user_data.get('password'):
-            user.password_hash = generate_passwd_hash(user_data['password'])
+    async def update_user(self, user: User, user_data: dict, session: AsyncSession):
+        if user_data.get("transfer_pin"):
+            user.transfer_pin_hash = generate_passwd_hash(user_data["transfer_pin"])
+        elif user_data.get("password"):
+            user.password_hash = generate_passwd_hash(user_data["password"])
         else:
             for k, v in user_data.items():
                 setattr(user, k, v)
@@ -106,7 +130,7 @@ class UserService:
         await session.refresh(user)
         return user
 
-    async def update_image(self, user:User, image: UploadFile, session: AsyncSession):
+    async def update_image(self, user: User, image: UploadFile, session: AsyncSession):
 
         user.image = await upload_image(image)
 
@@ -115,12 +139,12 @@ class UserService:
 
         return user
 
-    async def block_user(self, user:User, status: bool, session: AsyncSession):
+    async def block_user(self, user: User, status: bool, session: AsyncSession):
 
         if user.role not in (UserRole.MANAGER, UserRole.ADMIN):
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
-                detail="You do not have adequate permission to perform this actions."
+                detail="You do not have adequate permission to perform this actions.",
             )
 
         user.is_blocked = status
@@ -132,7 +156,9 @@ class UserService:
 
 
 class BusinessService:
-    async def create_business(self, user: User, business_data: BusinessProfileCreate, session: AsyncSession):
+    async def create_business(
+        self, user: User, business_data: BusinessProfileCreate, session: AsyncSession
+    ):
         business_data_dict = business_data.model_dump()
 
         new_business = BusinessProfile(**business_data_dict, user_id=user.uid)
@@ -156,22 +182,27 @@ class BusinessService:
         await session.refresh(new_business)
 
         user.business_profiles.append(new_business)
-        user.bank_account = bank_account
+        # user.bank_account = bank_account
 
         await session.commit()
         await session.refresh(user)
 
         return new_business
 
-    async def create_card(self, business_profile: BusinessProfile, session: AsyncSession) -> Card:
+    async def create_card(
+        self, business_profile: BusinessProfile, session: AsyncSession
+    ) -> Card:
         card_number = self.generate_debit_card_number()
-        expiration_date = datetime.utcnow() + timedelta(days=365 * 3)  # 3 years validity
+        expiration_date = datetime.utcnow() + timedelta(
+            days=365 * 3
+        )  # 3 years validity
         cvv = f"{random.randint(100, 999)}"  # Random CVV
         pin = f"{random.randint(1000, 9999)}"
 
         card = Card(
             card_number=card_number,
             expiration_date=expiration_date,
+            card_name=f"{business_profile.user.first_name} {business_profile.user.last_name}",
             cvv=cvv,
             pin=pin,
             business_id=business_profile.uid,
@@ -188,7 +219,9 @@ class BusinessService:
 
         return card
 
-    async def create_bank_account(self, business_profile: BusinessProfile, session: AsyncSession) -> BankAccount:
+    async def create_bank_account(
+        self, business_profile: BusinessProfile, session: AsyncSession
+    ) -> BankAccount:
         account_number = self.generate_bank_account_number()
         account_type = "checking"  # Default to checking account
         user = business_profile.user
@@ -209,17 +242,25 @@ class BusinessService:
         await session.commit()
         await session.refresh(bank_account)
 
-        await send_new_bank_account_details(bank=bank_account, user=business_profile.user)
+        await send_new_bank_account_details(
+            bank=bank_account, user=business_profile.user
+        )
 
         return bank_account
 
     async def get_business_by_id(self, business_id: str, session: AsyncSession):
-        selection = select(BusinessProfile).where(BusinessProfile.business_id == business_id)
+        selection = select(BusinessProfile).where(
+            BusinessProfile.business_id == business_id
+        )
         result = await session.exec(selection)
         return result.first()
 
-    async def get_bank_by_account_number(self, account_number: uuid.UUID, session: AsyncSession):
-        selection = select(BankAccount).where(BankAccount.account_number == account_number)
+    async def get_bank_by_account_number(
+        self, account_number: str, session: AsyncSession
+    ):
+        selection = select(BankAccount).where(
+            BankAccount.account_number == account_number
+        )
         result = await session.exec(selection)
         return result.first()
 
@@ -228,7 +269,12 @@ class BusinessService:
         result = await session.exec(selection)
         return result.first()
 
-    async def update_business(self, business: BusinessProfile, business_data: BusinessProfileUpdate, session: AsyncSession):
+    async def update_business(
+        self,
+        business: BusinessProfile,
+        business_data: BusinessProfileUpdate,
+        session: AsyncSession,
+    ):
         business_data_dict = business_data.model_dump()
 
         for k, v in business_data_dict.items():
@@ -254,12 +300,20 @@ class BusinessService:
         await session.delete(card)
         await session.commit()
 
-    async def delete_bank_account(self, bank_account: BankAccount, session: AsyncSession):
+    async def delete_bank_account(
+        self, bank_account: BankAccount, session: AsyncSession
+    ):
         await session.delete(bank_account)
         await session.commit()
 
-    async def get_user_account_balance(self, session: AsyncSession, user: User, account_number: str) -> float:
-        selection = select(BankAccount).where(BankAccount.account_number == account_number).where(BankAccount.user_id == user.uid)
+    async def get_user_account_balance(
+        self, session: AsyncSession, user: User, account_number: str
+    ) -> float:
+        selection = (
+            select(BankAccount)
+            .where(BankAccount.account_number == account_number)
+            .where(BankAccount.user_id == user.uid)
+        )
         result = await session.exec(selection)
         bankAccount = result.first()
 
@@ -268,6 +322,12 @@ class BusinessService:
             raise BankAccountNotFound()
 
         return bankAccount.balance
+
+    async def update_account_balance(self, session: AsyncSession, account: BankAccount, new_balance: float):
+        account.balance = new_balance
+        await session.commit()
+        await session.refresh(account)
+        return account
 
     def generate_debit_card_number(self):
         # Dummy debit card number generator (replace with actual implementation)

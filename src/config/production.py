@@ -1,9 +1,11 @@
 from .base import BaseConfig
 from pydantic_settings import SettingsConfigDict
 
+
 class ProductionConfig(BaseConfig):
     DATABASE_URL: str
     CELERY_BROKER_URL: str
+    CELERY_RESULT_BACKEND: str
     REDIS_URL: str
     MAIL_USERNAME: str
     MAIL_PASSWORD: str
@@ -24,5 +26,6 @@ class ProductionConfig(BaseConfig):
         extra="ignore",
         env_file_encoding='utf-8'
     )
+
 
 ProductionConfigSettings = ProductionConfig()

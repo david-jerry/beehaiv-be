@@ -1,4 +1,3 @@
-Here's a restructured version of your README file that includes more details about the project and adjusts the project structure to reflect the use of the `src/app/**` directory structure:
 
 ---
 

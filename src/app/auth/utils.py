@@ -3,29 +3,35 @@ import uuid
 from datetime import datetime, timedelta
 from itsdangerous import URLSafeTimedSerializer
 
-import jwt # type: ignore
-from passlib.context import CryptContext # type: ignore
+import jwt  # type: ignore
+from passlib.context import CryptContext  # type: ignore
 
 from src.app.auth.mails import send_reset_password_email, send_verification_email
 from src.app.auth.models import User
 from src.config.settings import Config
-from src.db.redis import get_password_reset_code, get_verification_status, store_password_reset_code, store_verification_code
+from src.db.redis import (
+    get_password_reset_code,
+    get_verification_status,
+    store_password_reset_code,
+    store_verification_code,
+)
 from src.utils.logger import LOGGER
 
 passwd_context = CryptContext(schemes=["bcrypt"])
 
 
 ACCESS_TOKEN_EXPIRY = 3600
-import random
-import string
+
 
 def generate_verification_code(email: str) -> str:
     token = create_url_safe_token({"email": email})
     return token
 
+
 def generate_transfer_pin(pin: str) -> str:
     token = create_url_safe_token({"pin": pin})
     return token
+
 
 async def send_verification_code(user: User, domain: str):
     verification_data = await get_verification_status(user.uid)
@@ -39,7 +45,8 @@ async def send_verification_code(user: User, domain: str):
     elif verification_data.get("verified") == "false":
         # Code exists but not verified; resend the existing code
         await send_verification_email(user, verification_data.get("code"), domain)
-        return  verification_data.get("code")
+        return verification_data.get("code")
+
 
 async def send_password_reset_code(user: User, domain: str):
     verification_data = await get_password_reset_code(user.uid)
@@ -54,15 +61,18 @@ async def send_password_reset_code(user: User, domain: str):
     else:
         # Code exists but not verified; resend the existing code
         await send_reset_password_email(user, domain, verification_data)
-        return verification_data.decode('utf-8')
+        return verification_data.decode("utf-8")
+
 
 def generate_passwd_hash(password: str) -> str:
     hash = passwd_context.hash(password)
 
     return hash
 
+
 def verify_password(password: str, hash: str) -> bool:
     return passwd_context.verify(password, hash)
+
 
 def create_access_token(
     user_data: dict, expiry: timedelta = None, refresh: bool = False
@@ -83,6 +93,7 @@ def create_access_token(
 
     return token
 
+
 def decode_token(token: str) -> dict:
     try:
         token_data = jwt.decode(
@@ -95,9 +106,11 @@ def decode_token(token: str) -> dict:
         logging.exception(e)
         return None
 
+
 serializer = URLSafeTimedSerializer(
     secret_key=Config.SECRET_KEY, salt="email-configuration"
 )
+
 
 def create_url_safe_token(data: dict):
 
@@ -105,7 +118,8 @@ def create_url_safe_token(data: dict):
 
     return token
 
-def decode_url_safe_token(token:str):
+
+def decode_url_safe_token(token: str):
     try:
         token_data = serializer.loads(token)
 

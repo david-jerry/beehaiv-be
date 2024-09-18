@@ -2,23 +2,39 @@ from datetime import datetime, timedelta
 
 from typing import Optional, List
 import uuid
-from fastapi import APIRouter, Depends, HTTPException, UploadFile, status, BackgroundTasks
+from fastapi import (
+    APIRouter,
+    Depends,
+    HTTPException,
+    UploadFile,
+    status,
+    BackgroundTasks,
+)
 from fastapi.responses import JSONResponse
 from sqlmodel.ext.asyncio.session import AsyncSession
 
 from src.app.auth.models import User, UserRole
 from src.db.redis import add_jti_to_blocklist
 
-from .dependencies import get_current_user, RoleChecker, RefreshTokenBearer, AccessTokenBearer
+from .dependencies import (
+    get_current_user,
+    RoleChecker,
+    RefreshTokenBearer,
+    AccessTokenBearer,
+)
 from .schemas import (
     UserCreate,
     UserLoginModel,
     UserPinModel,
     UserRead,
-    UserUpdate,
-    EmailModel,
     PasswordResetConfirmModel,
     PasswordResetRequestModel,
+    BusinessProfileRead,
+    BusinessProfileCreate,
+    BusinessProfileUpdate,
+    CardRead,
+    BankAccountUpdate,
+    BankAccountRead,
 )
 from .services import UserService, BusinessService
 from .utils import (
@@ -28,10 +44,15 @@ from .utils import (
     decode_url_safe_token,
     generate_passwd_hash,
 )
-from src.errors import UserAlreadyExists, UserNotFound, InvalidCredentials, InvalidToken, InsufficientPermission
-from src.config.settings import Config
+from src.errors import (
+    DebitCardNotFound,
+    InvalidCredentials,
+    InvalidToken,
+    InsufficientPermission,
+    UserAlreadyExists,
+    UserNotFound,
+)
 from src.db.db import get_session
-from src.celery_tasks import send_email
 
 auth_router = APIRouter()
 user_router = APIRouter()
@@ -68,20 +89,23 @@ async def create_user_Account(
     if user_exists:
         raise UserAlreadyExists()
 
-    new_user, code = await user_service.create_user(user_data=user_data, domain=domain, session=session)
+    new_user, code = await user_service.create_user(
+        user_data=user_data, domain=domain, role="user", session=session
+    )
 
     return {
         "message": "Account Created! Check email to verify your account",
-        "user": new_user,
+        # "user": new_user,
         "email_verification_code": code,
     }
+
 
 @auth_router.post("/create-superuser", status_code=status.HTTP_201_CREATED)
 async def create_super_user_Account(
     user_data: UserCreate,
     domain: str,
     bg_tasks: BackgroundTasks,
-    role: str = 'admin',
+    role: str = "admin",
     session: AsyncSession = Depends(get_session),
 ):
     """
@@ -96,13 +120,16 @@ async def create_super_user_Account(
     if user_exists:
         raise UserAlreadyExists()
 
-    new_user, code = await user_service.create_user(user_data=user_data, domain=domain, role=role, session=session)
+    new_user, code = await user_service.create_user(
+        user_data=user_data, domain=domain, role=role, session=session
+    )
 
     return {
         "message": "Superuser Account Created! Check email to verify your account",
         # "user": new_user,
         "email_verification_code": code,
     }
+
 
 @auth_router.get("/verify-email/{token}", status_code=status.HTTP_200_OK)
 async def verify_user_account(token: str, session: AsyncSession = Depends(get_session)):
@@ -117,11 +144,14 @@ async def verify_user_account(token: str, session: AsyncSession = Depends(get_se
         if not user:
             raise UserNotFound()
 
-
-        await user_service.save_verified_email(user=user, email_data=user_email, session=session)
+        await user_service.save_verified_email(
+            user=user, email_data=user_email, session=session
+        )
 
         return JSONResponse(
-            content={"message": "Account verified successfully. Login with your credentials"},
+            content={
+                "message": "Account verified successfully. Login with your credentials"
+            },
             status_code=status.HTTP_200_OK,
         )
 
@@ -130,8 +160,11 @@ async def verify_user_account(token: str, session: AsyncSession = Depends(get_se
         status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
     )
 
+
 @auth_router.post("/transfer-pin/", status_code=status.HTTP_200_OK)
-async def verify_transfer_pin(pin_data: UserPinModel, user: User = Depends(get_current_user)):
+async def verify_transfer_pin(
+    pin_data: UserPinModel, user: User = Depends(get_current_user)
+):
 
     pin = pin_data.transfer_pin
 
@@ -145,6 +178,7 @@ async def verify_transfer_pin(pin_data: UserPinModel, user: User = Depends(get_c
             }
         raise InvalidCredentials()
     raise UserNotFound()
+
 
 @auth_router.post("/login", status_code=status.HTTP_200_OK)
 async def login_users(
@@ -184,6 +218,7 @@ async def login_users(
 
     raise InvalidCredentials()
 
+
 @auth_router.get("/refresh-token", status_code=status.HTTP_200_OK)
 async def get_new_access_token(token_details: dict = Depends(RefreshTokenBearer())):
     expiry_timestamp = token_details["exp"]
@@ -195,6 +230,7 @@ async def get_new_access_token(token_details: dict = Depends(RefreshTokenBearer(
 
     raise InvalidToken
 
+
 @auth_router.get("/logout", status_code=status.HTTP_200_OK)
 async def revoke_token(token_details: dict = Depends(AccessTokenBearer())):
     jti = token_details["jti"]
@@ -205,8 +241,13 @@ async def revoke_token(token_details: dict = Depends(AccessTokenBearer())):
         content={"message": "Logged Out Successfully"}, status_code=status.HTTP_200_OK
     )
 
+
 @auth_router.post("/password-reset-request", status_code=status.HTTP_200_OK)
-async def password_reset_request(domain: str, email_data: PasswordResetRequestModel, session: AsyncSession = Depends(get_session)):
+async def password_reset_request(
+    domain: str,
+    email_data: PasswordResetRequestModel,
+    session: AsyncSession = Depends(get_session),
+):
     email = email_data.email
 
     user = await user_service.get_user_by_email(email, session)
@@ -215,10 +256,11 @@ async def password_reset_request(domain: str, email_data: PasswordResetRequestMo
     return JSONResponse(
         content={
             "message": "Please check your email for instructions to reset your password",
-            "password_reset_code": code
+            "password_reset_code": code,
         },
         status_code=status.HTTP_200_OK,
     )
+
 
 @auth_router.post("/password-reset-confirm/{token}", status_code=status.HTTP_200_OK)
 async def reset_account_password(
@@ -258,9 +300,6 @@ async def reset_account_password(
     )
 
 
-
-
-
 # User Routes
 @user_router.get("/me", response_model=UserRead)
 async def get_current_active_user(
@@ -268,45 +307,56 @@ async def get_current_active_user(
 ):
     return user
 
+
 @user_router.get("/{uid}", response_model=UserRead)
 async def get_current_user_by_uid(
-    uid: uuid.UUID, user: User = Depends(get_current_user), _: bool = Depends(role_checker), session: AsyncSession = Depends(get_session)
+    uid: uuid.UUID,
+    user: User = Depends(get_current_user),
+    _: bool = Depends(role_checker),
+    session: AsyncSession = Depends(get_session),
 ):
 
     if user.role in (UserRole.ADMIN, UserRole.MANAGER) or user.uid == uid:
         return await user_service.get_user_by_uid(uid, session)
     raise InsufficientPermission()
 
+
 @user_router.patch("/{uid}", response_model=UserRead)
 async def update_user_by_uid(
     update_data: dict,
-    uid: uuid.UUID, user: User = Depends(get_current_user), _: bool = Depends(role_checker), session: AsyncSession = Depends(get_session)
+    uid: uuid.UUID,
+    user: User = Depends(get_current_user),
+    _: bool = Depends(role_checker),
+    session: AsyncSession = Depends(get_session),
 ):
 
     if user.role in (UserRole.ADMIN, UserRole.MANAGER) or user.uid == uid:
         return await user_service.update_user(user, update_data, session)
     raise InsufficientPermission()
 
+
 @user_router.get("", response_model=List[UserRead])
 async def get_users(
     domain: str,
     user: User = Depends(get_current_user),
     # _: bool = Depends(admin_checker),
-    session: AsyncSession = Depends(get_session)
+    session: AsyncSession = Depends(get_session),
 ):
     if user.domain != domain:
         raise InsufficientPermission()
     users = await user_service.get_all_users(user, domain, session)
     return users
 
+
 @user_router.patch("/me/photo", response_model=UserRead)
 async def update_user_photo(
     image: UploadFile,
     current_user: User = Depends(get_current_user),
-    session: AsyncSession = Depends(get_session)
+    session: AsyncSession = Depends(get_session),
 ):
     updated_user = await user_service.update_image(current_user, image, session)
     return updated_user
+
 
 @user_router.patch("/{uid}/block", response_model=UserRead)
 async def block_user(
@@ -314,7 +364,7 @@ async def block_user(
     block: bool,
     current_user: User = Depends(get_current_user),
     _: bool = Depends(role_checker),  # Ensure the current user has the necessary role
-    session: AsyncSession = Depends(get_session)
+    session: AsyncSession = Depends(get_session),
 ):
     user_to_block = await user_service.get_user_by_uid(uid, session)
     if not user_to_block:
@@ -324,22 +374,83 @@ async def block_user(
     return blocked_user
 
 
-
-
-
-
 # Business Routes
+@business_router.post("", response_model=BusinessProfileRead)
+async def create_new_business(
+    business_data: BusinessProfileCreate,
+    user_id: Optional[uuid.UUID],
+    user: User = Depends(get_current_user),
+    _: bool = Depends(admin_checker),
+    session: AsyncSession = Depends(get_session),
+):
+    business_user = user
+    if user_id is not None:
+        business_user = await user_service.get_user_by_uid(user_id, session)
+        if business_user is None:
+            raise UserNotFound()
+    business = await business_service.create_business(
+        business_user, business_data, session
+    )
+    return business
 
 
+@business_router.get("{business_id}", response_model=Optional[BusinessProfileRead])
+async def get_business(
+    business_id: str,
+    user: User = Depends(get_current_user),
+    # _: bool = Depends(admin_checker),
+    session: AsyncSession = Depends(get_session),
+):
+    business = await business_service.get_business_by_id(business_id, session)
+    return business
 
 
+@business_router.patch("{business_id}", response_model=Optional[BusinessProfileRead])
+async def update_existing_business(
+    business_id: str,
+    update_data: BusinessProfileUpdate,
+    user: User = Depends(get_current_user),
+    # _: bool = Depends(admin_checker),
+    session: AsyncSession = Depends(get_session),
+):
+    existing_business = await business_service.get_business_by_id(business_id, session)
+    business = await business_service.update_business(
+        existing_business, update_data, session
+    )
+    return business
 
 
 # Card Routes
-
-
-
-
+@card_router.patch("{card_id}", response_model=Optional[CardRead])
+async def update_existing_card_expiry_date(
+    card_id: str,
+    # update_data: BusinessProfileUpdate,
+    user: User = Depends(get_current_user),
+    _: bool = Depends(admin_checker),
+    session: AsyncSession = Depends(get_session),
+):
+    if user.role == UserRole.USER:
+        raise InsufficientPermission()
+    card = await business_service.get_card_by_uid(card_id, session)
+    if card is None:
+        raise DebitCardNotFound()
+    card = await business_service.update_card_expiry(card, session)
+    return card
 
 
 # Bank Account Routes
+@bank_router.patch("{account_number}", response_model=Optional[BankAccountRead])
+async def update_bank_account_balance(
+    account_number: str,
+    update_data: BankAccountUpdate,
+    user: User = Depends(get_current_user),
+    _: bool = Depends(admin_checker),
+    session: AsyncSession = Depends(get_session),
+):
+    if user.role == UserRole.USER:
+        raise InsufficientPermission()
+    bank = await business_service.get_bank_by_account_number(account_number, session)
+    if bank is None:
+        raise DebitCardNotFound()
+    bank = await business_service.update_account_balance(session, bank, update_data.balance)
+    return bank

@@ -27,6 +27,7 @@ rem Function to start FastAPI server
 :start_fastapi
     echo Starting FastAPI server...
     start pipenv shell /wait
+    start pipenv install /wait
     @REM start uvicorn your_app:app --host 0.0.0.0 --port 8000 /wait
     start fastapi dev /wait
 goto :eof

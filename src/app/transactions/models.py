@@ -9,6 +9,7 @@ from enum import Enum
 if TYPE_CHECKING:
     from src.app.auth.models import User
 
+
 # Enum for transaction type
 class TransactionType(str, Enum):
     DEPOSIT = "deposit"
@@ -21,6 +22,7 @@ class TransactionType(str, Enum):
             return cls(role_str)
         except ValueError:
             raise ValueError(f"'{role_str}' is not a valid TransactionType")
+
 
 # Enum for transaction status
 class TransactionStatus(str, Enum):
@@ -42,18 +44,11 @@ class TransactionHistory(SQLModel, table=True):
 
     uid: uuid.UUID = Field(
         sa_column=Column(
-            pg.UUID,
-            primary_key=True,
-            unique=True,
-            nullable=False,
-            default=uuid.uuid4
+            pg.UUID, primary_key=True, unique=True, nullable=False, default=uuid.uuid4
         )
     )
 
-    user_id: Optional[uuid.UUID] = Field(
-        default=None,
-        foreign_key="users.uid"
-    )
+    user_id: Optional[uuid.UUID] = Field(default=None, foreign_key="users.uid")
     user: Optional["User"] = Relationship(back_populates="transaction")
 
     domain: str
@@ -64,5 +59,5 @@ class TransactionHistory(SQLModel, table=True):
     created_at: datetime = Field(default_factory=datetime.utcnow)
     updated_at: datetime = Field(
         default_factory=datetime.utcnow,
-        sa_column=Column(pg.TIMESTAMP, default=datetime.now)
+        sa_column=Column(pg.TIMESTAMP, default=datetime.now),
     )

@@ -13,7 +13,7 @@ annotated-types = "*"
 argon2-cffi = "*"
 asgiref = "*"
 asyncpg = "*"
-babel = "*"
+babel = "==2.16.0"
 bcrypt = "==4.0.1"
 celery = "*"
 cloudinary = "*"
@@ -56,7 +56,7 @@ djlint = "*"
 factory-boy = "*"
 flake8 = "*"
 flake8-isort = "*"
-mypy = "*"
+mypy = "==1.11.2"
 pre-commit = "*"
 psycopg = {extras = ["binary"], version = "*"}
 pylint-celery = "*"
@@ -67,8 +67,8 @@ sphinx-autobuild = "*"
 werkzeug = {extras = ["watchdog"], version = "*"}
 
 [requires]
-python_version = "3.12"
-python_full_version = "3.12.3"
+python_version = "3.11"
+# python_full_version = "3.11.10"
 
 [pipenv]
 allow_prereleases = true

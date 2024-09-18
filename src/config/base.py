@@ -1,6 +1,8 @@
 from pathlib import Path
 from pydantic_settings import BaseSettings, SettingsConfigDict
 BASE_URL = Path(__file__).resolve().parent.parent.parent
+
+
 class BaseConfig(BaseSettings):
     ENVIRONMENT: str
     SECRET_KEY: str
@@ -13,12 +15,12 @@ class BaseConfig(BaseSettings):
     CLOUDINARY_SECRET: str
     CLOUDINARY_URL: str
 
-
     model_config = SettingsConfigDict(
         env_file=".env",
         extra="ignore",
         env_file_encoding='utf-8'
     )
+
 
 BaseConfigSettings = BaseConfig()
 

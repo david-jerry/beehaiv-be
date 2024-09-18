@@ -1,0 +1,5 @@
+Hello, {name}
+
+Here is your verification code: {code}
+
+Copy and paste if the link is unavailable

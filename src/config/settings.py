@@ -1,9 +1,8 @@
-import os
-
 from src.config.production import ProductionConfig, ProductionConfigSettings
 from src.config.local import LocalConfig, LocalConfigSettings
 from src.config.base import BaseConfigSettings
 from src.utils.logger import LOGGER
+
 
 def get_config() -> (ProductionConfig | LocalConfig):
     environment = BaseConfigSettings.ENVIRONMENT
@@ -12,6 +11,7 @@ def get_config() -> (ProductionConfig | LocalConfig):
         return ProductionConfigSettings
     else:
         return LocalConfigSettings
+
 
 Config = get_config()
 broker_url = Config.REDIS_URL
