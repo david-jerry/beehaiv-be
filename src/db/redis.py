@@ -2,10 +2,7 @@ from typing import Optional
 import uuid
 import redis.asyncio as aioredis
 from src.config.settings import (
-    Config,
     broker_url,
-    result_backend,
-    broker_connection_retry_on_startup,
 )
 
 # Redis connection pool settings
