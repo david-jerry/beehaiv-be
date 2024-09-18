@@ -13,6 +13,7 @@ from src.app.auth.services import UserService
 from src.app.auth.dependencies import get_current_user
 from src.app.loans.schemas import LoanCreate, LoanUpdate, LoanRead
 from src.app.loans.services import LoanService
+from src.app.loans.models import Loan
 from src.errors import LoanNotFound
 from src.db.db import get_session
 
@@ -44,7 +45,7 @@ async def create_loan_record(
     Returns:
     - A JSON response containing a success message and the created loan details.
     """
-    loan = await loan_service.create_new_loan(session, user, loan_data)
+    loan: Loan = await loan_service.create_new_loan(session, user, loan_data)
 
     return {"message": "Loan Created!", "loan": loan}
 
@@ -73,7 +74,7 @@ async def update_loan_record(
     Returns:
     - A JSON response containing a success message and the updated loan details.
     """
-    loan = await loan_service.update_loan(uid, user, loan_data, session)
+    loan: Loan = await loan_service.update_loan(uid, user, loan_data, session)
 
     return {"message": "Loan Updated!", "loan": loan}
 
@@ -95,7 +96,29 @@ async def get_all_loans(
     Returns:
     - A JSON response containing a list of all loan records for the user.
     """
-    loans = await loan_service.get_all_loans(session, user)
+    loans: List[Loan] = await loan_service.get_all_loans(session, user)
+
+    return {"message": "Ok!", "loans": loans}
+
+
+@loan_router.get("/user-loans", status_code=status.HTTP_200_OK, response_model=List[LoanRead])
+async def get_user_loans(
+    user: User = Depends(get_current_user),
+    session: AsyncSession = Depends(get_session),
+):
+    """
+    Retrieve all loans for the authenticated user.
+
+    This endpoint returns a list of all loan records associated with the authenticated user.
+
+    Args:
+    - user (User): The current authenticated user.
+    - session (AsyncSession): The current database session.
+
+    Returns:
+    - A JSON response containing a list of all loan records for the user.
+    """
+    loans: List[Loan] = await loan_service.get_all_user_loans(session, user)
 
     return {"message": "Ok!", "loans": loans}
 
@@ -150,6 +173,10 @@ async def delete_loan_record(
     Returns:
     - A JSON response containing a success message confirming the loan has been deleted.
     """
+    loan = await loan_service.get_loan_by_uid(session, user, uid)
+    if loan is None:
+        raise LoanNotFound()
+    
     await loan_service.delete_loan(uid, user, session)
 
     return {"message": "Loan Deleted Successfully!"}

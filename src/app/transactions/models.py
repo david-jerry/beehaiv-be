@@ -49,8 +49,7 @@ class TransactionHistory(SQLModel, table=True):
     )
 
     user_id: Optional[uuid.UUID] = Field(default=None, foreign_key="users.uid")
-    user: Optional["User"] = Relationship(back_populates="transaction")
-
+    user: Optional["User"] = Relationship(back_populates="transactions")
     domain: str
 
     amount: float

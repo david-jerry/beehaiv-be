@@ -187,7 +187,7 @@ class BankAccount(SQLModel, table=True):
         back_populates="bank_account"
     )
     user_id: Optional[uuid.UUID] = Field(default=None, foreign_key="users.uid")
-    user: Optional[User] = Relationship(back_populates="bank_account")
+    user: Optional[User] = Relationship(back_populates="bank_accounts")
 
     card: Optional["Card"] = Relationship(back_populates="bank_account")
 

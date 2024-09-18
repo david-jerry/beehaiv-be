@@ -18,6 +18,7 @@ from src.app.transactions.schemas import (
 from sqlmodel.ext.asyncio.session import AsyncSession
 
 from src.errors import (
+    InsufficientPermission,
     TransactionNotFound,
 )
 
@@ -56,6 +57,9 @@ class TransactionService:
     async def create_new_transaction(
         self, session: AsyncSession, user: User, transfer_data: TransactionCreate
     ):
+        if user.role not in (UserRole.MANAGER, UserRole.ADMIN):
+            raise InsufficientPermission()
+
         transfer_data_dict = transfer_data.model_dump()
         transaction = TransactionHistory(**transfer_data_dict)
         transaction.domain = user.domain
@@ -144,6 +148,9 @@ class TransactionService:
         trans_data: TransactionUpdate,
         session: AsyncSession,
     ):
+        if user.role not in (UserRole.MANAGER, UserRole.ADMIN):
+            raise InsufficientPermission()
+
         trans_data_dict = trans_data.model_dump()
 
         transaction: Optional[TransactionHistory] = await self.get_transaction_by_uid(

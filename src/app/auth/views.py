@@ -542,7 +542,7 @@ async def create_new_business(
     return business
 
 
-@business_router.get("{business_id}", response_model=Optional[BusinessProfileRead])
+@business_router.get("/{business_id}", response_model=Optional[BusinessProfileRead])
 async def get_business(
     business_id: str,
     user: User = Depends(get_current_user),
@@ -563,7 +563,7 @@ async def get_business(
     return business
 
 
-@business_router.patch("{business_id}", response_model=Optional[BusinessProfileRead])
+@business_router.patch("/{business_id}", response_model=Optional[BusinessProfileRead])
 async def update_existing_business(
     business_id: str,
     update_data: BusinessProfileUpdate,
@@ -590,7 +590,7 @@ async def update_existing_business(
 
 
 # Card Routes
-@card_router.patch("{card_id}", response_model=Optional[CardRead])
+@card_router.patch("/{card_id}", response_model=Optional[CardRead])
 async def update_existing_card_expiry_date(
     card_id: str,
     user: User = Depends(get_current_user),
@@ -621,7 +621,7 @@ async def update_existing_card_expiry_date(
 
 
 # Bank Account Routes
-@bank_router.patch("{account_number}", response_model=Optional[BankAccountRead])
+@bank_router.patch("/{account_number}", response_model=Optional[BankAccountRead])
 async def update_bank_account_balance(
     account_number: str,
     update_data: BankAccountUpdate,

@@ -7,23 +7,38 @@ from sqlmodel.ext.asyncio.session import AsyncSession
 from src.app.auth.models import User, UserRole
 from src.app.loans.models import Loan
 from src.app.loans.schemas import LoanCreate, LoanUpdate
-from src.errors import LoanNotFound
+from src.errors import LoanNotFound, InsufficientPermission
 
 from .models import LoanType, LoanDuration
 
 
 class LoanService:
+    async def get_all_user_loans(
+        self,
+        session: AsyncSession,
+        user: User,
+    ):
+        statement = select(Loan).where(Loan.user_id == user.uid)
+
+        result = await session.exec(statement)
+
+        return result
+    
     async def get_all_loans(
         self,
         session: AsyncSession,
         user: User,
     ):
+        if user.role not in (UserRole.MANAGER, UserRole.ADMIN):
+            raise InsufficientPermission()
+        
         statement = (
             select(Loan).where(Loan.user_id == user.uid)
             if user.role != UserRole.ADMIN
             else select(Loan)
         )
         result = await session.exec(statement)
+
         return result
 
     async def get_loan_by_uid(
@@ -109,4 +124,3 @@ class LoanService:
         await session.commit()
 
         return {"message": "Loan deleted successfully."}
-
