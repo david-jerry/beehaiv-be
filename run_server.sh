@@ -142,12 +142,13 @@ main() {
                 echo "Failed to sync dependencies. Continuing with the script..."
             fi
         fi
+
+        check_and_start_redis
     else
         echo "ENVIRONMENT is in production mode."
     fi
 
 
-    check_and_start_redis
     start_celery
     start_fastapi
 
