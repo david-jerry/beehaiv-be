@@ -1,6 +1,6 @@
-from fastapi import FastAPI, status
+from fastapi import FastAPI
 from fastapi.requests import Request
-from fastapi.responses import JSONResponse
+from fastapi.responses import RedirectResponse
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.trustedhost import TrustedHostMiddleware
 import time
@@ -17,6 +17,11 @@ def register_middleware(app: FastAPI):
     @app.middleware("http")
     async def custom_logging(request: Request, call_next):
         start_time = time.time()
+
+        # Check if the request URL is the root "/"
+        if request.url.path == "/":
+            # Redirect to /api/v1/redocs
+            return RedirectResponse(url="/api/v1/redocs")
 
         response = await call_next(request)
         processing_time = time.time() - start_time
