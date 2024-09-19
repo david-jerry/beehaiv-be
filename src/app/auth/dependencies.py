@@ -1,8 +1,8 @@
-from typing import Any, List
+from typing import Any, List, Annotated
 
 from fastapi import Depends, Request, status
 from fastapi.exceptions import HTTPException
-from fastapi.security import HTTPBearer
+from fastapi.security import HTTPBearer, OAuth2PasswordBearer
 from fastapi.security.http import HTTPAuthorizationCredentials
 from sqlmodel.ext.asyncio.session import AsyncSession
 
@@ -19,9 +19,10 @@ from src.errors import (
     AccessTokenRequired,
     InsufficientPermission,
 )
+oauth2_bearer = OAuth2PasswordBearer(tokenUrl="/api/v1/auth/login")
 
 user_service = UserService()
-
+oauth2_bearer_dependency = Annotated[str, Depends(oauth2_bearer)]
 
 class TokenBearer(HTTPBearer):
     def __init__(self, auto_error=True):
@@ -44,7 +45,7 @@ class TokenBearer(HTTPBearer):
 
         return token_data
 
-    def token_valid(self, token: str) -> bool:
+    def token_valid(self, token: oauth2_bearer_dependency) -> bool:  #str
         token_data = decode_token(token)
 
         return token_data is not None

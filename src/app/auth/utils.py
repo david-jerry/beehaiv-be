@@ -1,6 +1,7 @@
 import logging
 import uuid
 from datetime import datetime, timedelta
+
 from itsdangerous import URLSafeTimedSerializer
 
 import jwt  # type: ignore
@@ -17,8 +18,7 @@ from src.db.redis import (
 )
 from src.utils.logger import LOGGER
 
-passwd_context = CryptContext(schemes=["bcrypt"])
-
+passwd_context = CryptContext(schemes=["bcrypt"], deprecated='auto')
 
 ACCESS_TOKEN_EXPIRY = 3600
 

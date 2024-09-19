@@ -15,7 +15,11 @@ async def init_db() -> None:
 
 async def get_session() -> AsyncSession:  # type: ignore
     Session = sessionmaker(
-        bind=async_engine, class_=AsyncSession, expire_on_commit=False
+        bind=async_engine,
+        class_=AsyncSession,
+        expire_on_commit=False,
+        autoflush=False,
+        autocommit=False,
     )
 
     async with Session() as session:

@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta
 
-from typing import Optional, List
+from typing import Annotated, Optional, List
 import uuid
 from fastapi import (
     APIRouter,
@@ -11,6 +11,7 @@ from fastapi import (
     BackgroundTasks,
 )
 from fastapi.responses import JSONResponse
+from fastapi.security import OAuth2PasswordRequestForm
 from sqlmodel.ext.asyncio.session import AsyncSession
 
 from src.app.auth.models import User, UserRole
@@ -23,6 +24,7 @@ from .dependencies import (
     AccessTokenBearer,
 )
 from .schemas import (
+    LoginResponseSchema,
     UserCreate,
     UserLoginModel,
     UserPinModel,
@@ -206,9 +208,9 @@ async def verify_transfer_pin(
     raise UserNotFound()
 
 
-@auth_router.post("/login", status_code=status.HTTP_200_OK)
+@auth_router.post("/login", status_code=status.HTTP_200_OK, response_model=LoginResponseSchema)
 async def login_users(
-    login_data: UserLoginModel, session: AsyncSession = Depends(get_session)
+    login_data: Annotated[OAuth2PasswordRequestForm, Depends()], session: AsyncSession = Depends(get_session)
 ):
     """
     Log in a user using email and password.

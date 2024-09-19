@@ -22,8 +22,8 @@ class LoanService:
 
         result = await session.exec(statement)
 
-        return result
-    
+        return result.all()
+
     async def get_all_loans(
         self,
         session: AsyncSession,
@@ -31,7 +31,7 @@ class LoanService:
     ):
         if user.role not in (UserRole.MANAGER, UserRole.ADMIN):
             raise InsufficientPermission()
-        
+
         statement = (
             select(Loan).where(Loan.user_id == user.uid)
             if user.role != UserRole.ADMIN
@@ -39,7 +39,7 @@ class LoanService:
         )
         result = await session.exec(statement)
 
-        return result
+        return result.all()
 
     async def get_loan_by_uid(
         self,
