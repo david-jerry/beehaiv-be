@@ -22,7 +22,7 @@ class LoanService:
 
         result = await session.exec(statement)
 
-        return result
+        return result.all()
     
     async def get_all_loans(
         self,
@@ -39,7 +39,7 @@ class LoanService:
         )
         result = await session.exec(statement)
 
-        return result
+        return result.all()
 
     async def get_loan_by_uid(
         self,

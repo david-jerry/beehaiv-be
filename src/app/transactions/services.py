@@ -35,7 +35,7 @@ class TransactionService:
             else select(TransactionHistory)
         )
         result = await session.exec(statement)
-        return result
+        return result.all()
 
     async def get_transaction_by_uid(
         self,

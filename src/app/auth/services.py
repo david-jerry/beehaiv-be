@@ -38,7 +38,7 @@ class UserService:
 
         result = await session.exec(statement)
 
-        return result
+        return result.all()
 
     async def get_user_by_email(self, email: str, session: AsyncSession):
         statement = select(User).where(User.email == email)
@@ -323,7 +323,9 @@ class BusinessService:
 
         return bankAccount.balance
 
-    async def update_account_balance(self, session: AsyncSession, account: BankAccount, new_balance: float):
+    async def update_account_balance(
+        self, session: AsyncSession, account: BankAccount, new_balance: float
+    ):
         account.balance = new_balance
         await session.commit()
         await session.refresh(account)
