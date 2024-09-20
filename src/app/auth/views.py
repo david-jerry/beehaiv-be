@@ -24,7 +24,6 @@ from .dependencies import (
     AccessTokenBearer,
 )
 from .schemas import (
-    LoginResponseSchema,
     UserCreate,
     UserLoginModel,
     UserPinModel,
