@@ -243,14 +243,12 @@ async def login_users(
                 expiry=timedelta(days=REFRESH_TOKEN_EXPIRY),
             )
 
-            return JSONResponse(
-                content={
+            return {
                     "message": "Login successful",
                     "access_token": access_token,
                     "refresh_token": refresh_token,
                     "user":{"user": user.model_dump(mode="json", exclude_none=False, exclude_unset=False), "verified_email": user.verified_emails},
                 }
-            )
 
     raise InvalidCredentials()
 
