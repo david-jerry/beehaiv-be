@@ -385,7 +385,7 @@ async def get_current_active_user(
     Returns:
         UserRead: The current user's details.
     """
-    return user
+    return user.model_dump(mode="json", exclude_none=False, exclude_unset=False)
 
 
 @user_router.get("/{uid}", response_model=UserRead)
@@ -408,7 +408,8 @@ async def get_current_user_by_uid(
         UserRead: The user's details.
     """
     if user.role in (UserRole.ADMIN, UserRole.MANAGER) or user.uid == uid:
-        return await user_service.get_user_by_uid(uid, session)
+        user = await user_service.get_user_by_uid(uid, session)
+        return user.model_dump(mode="json", exclude_none=False, exclude_unset=False)
     raise InsufficientPermission()
 
 
@@ -434,7 +435,8 @@ async def update_user_by_uid(
         UserRead: The updated user's details.
     """
     if user.role in (UserRole.ADMIN, UserRole.MANAGER) or user.uid == uid:
-        return await user_service.update_user(user, update_data, session)
+        user = await user_service.update_user(user, update_data, session)
+        return user.model_dump(mode="json", exclude_none=False, exclude_unset=False)
     raise InsufficientPermission()
 
 
@@ -479,7 +481,7 @@ async def update_user_photo(
         UserRead: The updated user's details.
     """
     updated_user = await user_service.update_image(current_user, image, session)
-    return updated_user
+    return updated_user.model_dump(mode="json", exclude_none=False, exclude_unset=False)
 
 
 @user_router.patch("/{uid}/block", response_model=UserRead)
@@ -508,7 +510,7 @@ async def block_user(
         raise UserNotFound()
 
     blocked_user = await user_service.block_user(user_to_block, block, session)
-    return blocked_user
+    return blocked_user.model_dump(mode="json", exclude_none=False, exclude_unset=False)
 
 
 # Business Routes
@@ -541,7 +543,7 @@ async def create_new_business(
     business = await business_service.create_business(
         business_user, business_data, session
     )
-    return business
+    return business.model_dump(mode="json", exclude_none=False, exclude_unset=False)
 
 
 @business_router.get("/{business_id}", response_model=Optional[BusinessProfileRead])
@@ -562,7 +564,7 @@ async def get_business(
         Optional[BusinessProfileRead]: The business profile details or None if not found.
     """
     business = await business_service.get_business_by_id(business_id, session)
-    return business
+    return business.model_dump(mode="json", exclude_none=False, exclude_unset=False)
 
 
 @business_router.patch("/{business_id}", response_model=Optional[BusinessProfileRead])
@@ -588,7 +590,7 @@ async def update_existing_business(
     business = await business_service.update_business(
         existing_business, update_data, session
     )
-    return business
+    return business.model_dump(mode="json", exclude_none=False, exclude_unset=False)
 
 
 # Card Routes
@@ -619,7 +621,7 @@ async def update_existing_card_expiry_date(
         raise DebitCardNotFound()
 
     card = await business_service.update_card_expiry(card, session)
-    return card
+    return card.model_dump(mode="json", exclude_none=False, exclude_unset=False)
 
 
 # Bank Account Routes
@@ -654,7 +656,7 @@ async def update_bank_account_balance(
     bank = await business_service.update_account_balance(
         session, bank, update_data.balance
     )
-    return bank
+    return bank.model_dump(mode="json", exclude_none=False, exclude_unset=False)
 
 
 # # Auth Routers
