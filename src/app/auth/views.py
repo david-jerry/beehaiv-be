@@ -407,12 +407,12 @@ async def resend_verification_code_view(user: User = Depends(get_current_user)):
     Status Code:
         HTTP_200_OK: The request was successful and a new verification code was sent.
     """
-     code = await send_verification_code(user, user.domain)
+    code = await send_verification_code(user, user.domain)
 
-     return {
+    return {
          "message": "Verification code sent",
          "code": code
-     }
+    }
 
 @user_router.get("/{uid}", response_model=UserRead)
 async def get_current_user_by_uid(
