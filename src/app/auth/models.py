@@ -56,23 +56,23 @@ class User(SQLModel, table=True):
     # Relationships
     verified_emails: List["VerifiedEmail"] = Relationship(
         back_populates="user",
-        sa_relationship_kwargs={"cascade": "all, delete-orphan", "lazy": "selectin"},
+        sa_relationship_kwargs={"cascade": "all, delete-orphan", "lazy": "joined"},
     )
     business_profiles: List["BusinessProfile"] = Relationship(
         back_populates="user",
-        sa_relationship_kwargs={"cascade": "all, delete-orphan", "lazy": "selectin"},
+        sa_relationship_kwargs={"cascade": "all, delete-orphan", "lazy": "joined"},
     )
     bank_accounts: List["BankAccount"] = Relationship(
         back_populates="user",
-        sa_relationship_kwargs={"cascade": "all, delete-orphan", "lazy": "selectin"},
+        sa_relationship_kwargs={"cascade": "all, delete-orphan", "lazy": "joined"},
     )
     transactions: List["TransactionHistory"] = Relationship(
         back_populates="user",
-        sa_relationship_kwargs={"cascade": "all, delete-orphan", "lazy": "selectin"},
+        sa_relationship_kwargs={"cascade": "all, delete-orphan", "lazy": "joined"},
     )
     loans: List["Loan"] = Relationship(
         back_populates="user",
-        sa_relationship_kwargs={"cascade": "all, delete-orphan", "lazy": "selectin"},
+        sa_relationship_kwargs={"cascade": "all, delete-orphan", "lazy": "joined"},
     )
 
     def __repr__(self) -> str:
