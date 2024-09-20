@@ -40,11 +40,11 @@ async def send_verification_code(user: User, domain: str):
         code = generate_verification_code(user.email)
         await store_verification_code(user.uid, code)
         # Send the code via email
-        await send_verification_email(user, code, domain)
+        # await send_verification_email(user, code, domain)
         return code
     elif verification_data.get("verified") == "false":
         # Code exists but not verified; resend the existing code
-        await send_verification_email(user, verification_data.get("code"), domain)
+        # await send_verification_email(user, verification_data.get("code"), domain)
         return verification_data.get("code")
 
 
@@ -56,11 +56,11 @@ async def send_password_reset_code(user: User, domain: str):
         code = generate_verification_code(user.email)
         await store_password_reset_code(user.uid, code)
         # Send the code via email
-        await send_reset_password_email(user, domain, code)
+        # await send_reset_password_email(user, domain, code)
         return code
     else:
         # Code exists but not verified; resend the existing code
-        await send_reset_password_email(user, domain, verification_data)
+        # await send_reset_password_email(user, domain, verification_data)
         return verification_data.decode("utf-8")
 
 

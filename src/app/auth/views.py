@@ -99,7 +99,7 @@ async def create_user_Account(
     if user_exists:
         raise UserAlreadyExists()
 
-    new_user, code = await user_service.create_user(
+    code = await user_service.create_user(
         user_data=user_data, domain=domain, role="user", session=session
     )
 
@@ -137,7 +137,7 @@ async def create_super_user_Account(
     if user_exists:
         raise UserAlreadyExists()
 
-    new_user, code = await user_service.create_user(
+    code = await user_service.create_user(
         user_data=user_data, domain=domain, role=role, session=session
     )
 
@@ -233,7 +233,8 @@ async def login_users(
             code = await send_verification_code(user, user.domain)
             return {
                 "message": "You must have verified your email to be authenticated. Please check your email, a new verification code has been sent to you",
-                "code": code
+                "code": code,
+                "user": user
             }
 
         password_valid = verify_password(password, user.password_hash)

@@ -125,7 +125,7 @@ class UserService:
         # Use the user's domain for sending the verification email
         code = await send_verification_code(new_user, new_user.domain)
 
-        return new_user, code
+        return code
 
     async def save_verified_email(
         self, user: User, email_data: str, session: AsyncSession
