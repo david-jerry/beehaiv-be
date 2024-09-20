@@ -8,6 +8,7 @@ from uuid import UUID
 from fastapi import HTTPException, UploadFile
 from sqlmodel import select
 from sqlmodel.ext.asyncio.session import AsyncSession
+from sqlalchemy.orm import selectinload
 
 from src.app.auth.mails import send_card_pin, send_new_bank_account_details
 from src.db.cloudinary import upload_image
@@ -31,9 +32,21 @@ class UserService:
             raise InsufficientPermission()
 
         statement = (
-            select(User).where(User.domain == domain)
+            select(User).where(User.domain == domain).options(
+            selectinload(User.verified_emails),
+            selectinload(User.business_profiles),
+            # selectinload(User.bank_accounts),
+            selectinload(User.transactions),
+            selectinload(User.loans),
+        )
             if user.role == UserRole.MANAGER
-            else select(User)
+            else select(User).options(
+            selectinload(User.verified_emails),
+            selectinload(User.business_profiles),
+            # selectinload(User.bank_accounts),
+            selectinload(User.transactions),
+            selectinload(User.loans),
+        )
         )
 
         result = await session.exec(statement)
@@ -41,7 +54,13 @@ class UserService:
         return result.all()
 
     async def get_user_by_email(self, email: str, session: AsyncSession):
-        statement = select(User).where(User.email == email)
+        statement = select(User).where(User.email == email).options(
+            selectinload(User.verified_emails),
+            selectinload(User.business_profiles),
+            # selectinload(User.bank_accounts),
+            selectinload(User.transactions),
+            selectinload(User.loans),
+        )
 
         result = await session.exec(statement)
 
@@ -50,7 +69,13 @@ class UserService:
         return user
 
     async def get_user_by_uid(self, uid: UUID, session: AsyncSession):
-        statement = select(User).where(User.uid == uid)
+        statement = select(User).where(User.uid == uid).options(
+            selectinload(User.verified_emails),
+            selectinload(User.business_profiles),
+            # selectinload(User.bank_accounts),
+            selectinload(User.transactions),
+            selectinload(User.loans),
+        )
 
         result = await session.exec(statement)
 
@@ -143,7 +168,7 @@ class UserService:
 
         if user.role not in (UserRole.MANAGER, UserRole.ADMIN):
             raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
+                status_code=403,
                 detail="You do not have adequate permission to perform this actions.",
             )
 
@@ -251,6 +276,9 @@ class BusinessService:
     async def get_business_by_id(self, business_id: str, session: AsyncSession):
         selection = select(BusinessProfile).where(
             BusinessProfile.business_id == business_id
+        ).options(
+            selectinload(BusinessProfile.bank_account),
+            selectinload(BusinessProfile.card),
         )
         result = await session.exec(selection)
         return result.first()
@@ -260,12 +288,18 @@ class BusinessService:
     ):
         selection = select(BankAccount).where(
             BankAccount.account_number == account_number
+        ).options(
+            selectinload(BankAccount.business_profile),
+            selectinload(BankAccount.card),
         )
         result = await session.exec(selection)
         return result.first()
 
     async def get_card_by_uid(self, card_id: uuid.UUID, session: AsyncSession):
-        selection = select(Card).where(Card.uid == card_id)
+        selection = select(Card).where(Card.uid == card_id).options(
+            selectinload(Card.business_profile),
+            selectinload(Card.bank_account),
+        )
         result = await session.exec(selection)
         return result.first()
 
