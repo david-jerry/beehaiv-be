@@ -323,7 +323,9 @@ class BusinessService:
 
         return bankAccount.balance
 
-    async def update_account_balance(self, session: AsyncSession, account: BankAccount, new_balance: float):
+    async def update_account_balance(
+        self, session: AsyncSession, account: BankAccount, new_balance: float
+    ):
         account.balance = new_balance
         await session.commit()
         await session.refresh(account)

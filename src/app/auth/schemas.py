@@ -85,6 +85,12 @@ class UserLoginModel(BaseModel):
     password: str = Field(min_length=8)
 
 
+class LoginResponseModel(BaseModel):
+    access_token: str
+    refresh_token: str
+    user: UserRead
+
+
 class UserPinModel(BaseModel):
     transfer_pin: str = Field(min_length=4, max_length=4)
 
@@ -153,7 +159,7 @@ class BusinessProfileUpdate(BaseModel):
 
 
 class BusinessProfileRead(BusinessProfileBase):
-    id: uuid.UUID
+    uid: uuid.UUID
     created_at: datetime
     updated_at: datetime
 
@@ -172,7 +178,7 @@ class CardCreate(BaseModel):
 
 
 class CardRead(BaseModel):
-    id: uuid.UUID
+    uid: uuid.UUID
     card_number: str
     card_name: str
     expiration_date: datetime
@@ -197,7 +203,7 @@ class BankAccountUpdate(BaseModel):
 
 
 class BankAccountRead(BaseModel):
-    id: uuid.UUID
+    uid: uuid.UUID
     account_number: str
     account_type: str
     bank_name: str
