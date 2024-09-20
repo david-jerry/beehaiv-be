@@ -198,7 +198,7 @@ class BankAccount(SQLModel, table=True):
 class Card(SQLModel, table=True):
     __tablename__ = "cards"
 
-    id: uuid.UUID = Field(
+    uid: uuid.UUID = Field(
         sa_column=Column(
             pg.UUID, primary_key=True, unique=True, nullable=False, default=uuid.uuid4
         )

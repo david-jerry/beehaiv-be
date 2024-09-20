@@ -84,7 +84,7 @@ class UserLoginModel(BaseModel):
 class LoginResponseModel(BaseModel):
     access_token: str
     refresh_token: str
-    user: dict
+    user: UserRead
 
 
 class UserPinModel(BaseModel):
@@ -155,7 +155,7 @@ class BusinessProfileUpdate(BaseModel):
 
 
 class BusinessProfileRead(BusinessProfileBase):
-    id: uuid.UUID
+    uid: uuid.UUID
     created_at: datetime
     updated_at: datetime
 
@@ -174,7 +174,7 @@ class CardCreate(BaseModel):
 
 
 class CardRead(BaseModel):
-    id: uuid.UUID
+    uid: uuid.UUID
     card_number: str
     card_name: str
     expiration_date: datetime
@@ -199,7 +199,7 @@ class BankAccountUpdate(BaseModel):
 
 
 class BankAccountRead(BaseModel):
-    id: uuid.UUID
+    uid: uuid.UUID
     account_number: str
     account_type: str
     bank_name: str
