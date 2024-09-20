@@ -55,10 +55,6 @@ class UserUpdate(UserBase):
         None  # Optional transfer pin update
     )
 
-class LoginResponseSchema(BaseModel):
-    access_token: str
-    refresh_token: str
-    user: dict
 
 # Schema for reading a user's data
 class UserRead(UserBase):
