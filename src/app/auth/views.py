@@ -249,6 +249,7 @@ async def login_users(
                     "access_token": access_token,
                     "refresh_token": refresh_token,
                     "user": user.model_dump(mode="json", exclude_none=False, exclude_unset=False),
+                    "verified_email": user.verified_emails,
                 }
             )
 
