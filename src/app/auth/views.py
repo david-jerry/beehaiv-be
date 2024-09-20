@@ -229,6 +229,13 @@ async def login_users(
     user = await user_service.get_user_by_email(email, session)
 
     if user is not None:
+        if len(user.verified_emails) < 1:
+            code = await send_verification_code(user, user.domain)
+            return {
+                "message": "You must have verified your email to be authenticated. Please check your email, a new verification code has been sent to you",
+                "code": code
+            }
+
         password_valid = verify_password(password, user.password_hash)
         if password_valid:
             access_token = create_access_token(
@@ -386,6 +393,7 @@ async def get_current_active_user(
     """
     return user
 
+
 @user_router.get("/me/request-new-verification", status_code=status.HTTP_200_OK)
 async def resend_verification_code_view(user: User = Depends(get_current_user)):
     """
@@ -413,6 +421,7 @@ async def resend_verification_code_view(user: User = Depends(get_current_user)):
          "message": "Verification code sent",
          "code": code
     }
+
 
 @user_router.get("/{uid}", response_model=UserRead)
 async def get_current_user_by_uid(
