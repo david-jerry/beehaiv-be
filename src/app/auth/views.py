@@ -209,8 +209,11 @@ async def verify_transfer_pin(
     raise UserNotFound()
 
 
-# UserLoginModel
-@auth_router.post("/login", status_code=status.HTTP_200_OK)
+<<<<<<< HEAD
+@auth_router.post("/login", status_code=status.HTTP_200_OK, response_model=LoginResponseSchema)
+=======
+@auth_router.post("/login", status_code=status.HTTP_200_OK, response_model=LoginResponseModel)
+>>>>>>> 2d8a31fafe3901bb51df271543a68d3c59da2542
 async def login_users(
     login_data: Annotated[OAuth2PasswordRequestForm, Depends()], session: AsyncSession = Depends(get_session)
 ):
@@ -245,14 +248,12 @@ async def login_users(
                 expiry=timedelta(days=REFRESH_TOKEN_EXPIRY),
             )
 
-            u_data = user.model_dump(mode="json")
-
             return JSONResponse(
                 content={
                     "message": "Login successful",
                     "access_token": access_token,
                     "refresh_token": refresh_token,
-                    "user": u_data,
+                    "user": user,
                 }
             )
 
