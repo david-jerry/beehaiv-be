@@ -42,6 +42,7 @@ from .services import UserService, BusinessService
 from .utils import (
     create_access_token,
     send_password_reset_code,
+    send_verification_code,
     verify_password,
     decode_url_safe_token,
     generate_passwd_hash,
@@ -385,6 +386,33 @@ async def get_current_active_user(
     """
     return user
 
+@user_router.get("/me/request-new-verification", status_code=status.HTTP_200_OK)
+async def resend_verification_code_view(user: User = Depends(get_current_user)):
+    """
+    Resend a new verification code to the current user's email.
+
+    This view generates and sends a new verification code to the email
+    address associated with the current user, based on the domain the user is
+    registered under.
+
+    Args:
+        user (User): The current authenticated user, retrieved via the
+                     `get_current_user` dependency.
+
+    Returns:
+        dict: A dictionary containing:
+              - "message" (str): A message indicating the verification code has been sent.
+              - "code" (str): The newly generated verification code.
+
+    Status Code:
+        HTTP_200_OK: The request was successful and a new verification code was sent.
+    """
+     code = await send_verification_code(user, user.domain)
+
+     return {
+         "message": "Verification code sent",
+         "code": code
+     }
 
 @user_router.get("/{uid}", response_model=UserRead)
 async def get_current_user_by_uid(
