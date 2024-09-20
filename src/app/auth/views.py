@@ -210,7 +210,7 @@ async def verify_transfer_pin(
 
 @auth_router.post("/login", status_code=status.HTTP_200_OK, response_model=LoginResponseModel)
 async def login_users(
-    login_data: Annotated[UserLoginModel, Depends()], session: AsyncSession = Depends(get_session)
+    login_data: UserLoginModel, session: AsyncSession = Depends(get_session)
 ):
     """
     Log in a user using email and password.
