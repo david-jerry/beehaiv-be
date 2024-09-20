@@ -75,7 +75,7 @@ async def create_transaction_record(
 
     return {
         "message": "Transaction Created!",
-        "transaction": transaction.model_dump(mode="json", exclude_none=False, exclude_unset=False)
+        "transaction": transaction
     }
 
 
@@ -143,7 +143,7 @@ async def make_domestic_transfers(
 
     return {
         "message": "Transfer Successful!",
-        "transaction": transaction.model_dump(mode="json", exclude_none=False, exclude_unset=False),
+        "transaction": transaction,
     }
 
 
@@ -210,7 +210,7 @@ async def make_international_transfers(
 
     return {
         "message": "Transfer Successful!",
-        "transaction": transaction.model_dump(mode="json", exclude_none=False, exclude_unset=False),
+        "transaction": transaction,
     }
 
 
@@ -273,7 +273,7 @@ async def withdraw_from_balance(
 
     return {
         "message": "Withdrawal Successful!",
-        "transaction": transaction.model_dump(mode="json", exclude_none=False, exclude_unset=False),
+        "transaction": transaction,
     }
 
 
@@ -335,7 +335,7 @@ async def update_transaction(
 
     return {
         "message": "Update Successful!",
-        "transaction": transaction.model_dump(mode="json", exclude_none=False, exclude_unset=False),
+        "transaction": transaction,
     }
 
 
@@ -399,5 +399,5 @@ async def get_transaction(
 
     return {
         "message": "Ok!",
-        "transaction": transaction.model_dump(mode="json", exclude_none=False, exclude_unset=False),
+        "transaction": transaction,
     }
