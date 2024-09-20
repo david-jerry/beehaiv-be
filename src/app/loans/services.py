@@ -23,11 +23,6 @@ class LoanService:
         result = await session.exec(statement)
 
         return result.all()
-<<<<<<< HEAD
-
-=======
-    
->>>>>>> 2d8a31fafe3901bb51df271543a68d3c59da2542
     async def get_all_loans(
         self,
         session: AsyncSession,
