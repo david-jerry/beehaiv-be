@@ -47,7 +47,7 @@ async def create_loan_record(
     """
     loan: Loan = await loan_service.create_new_loan(session, user, loan_data)
 
-    return {"message": "Loan Created!", "loan": loan}
+    return {"message": "Loan Created!", "loan": loan.model_dump(mode="json", exclude_none=False, exclude_unset=False)}
 
 
 @loan_router.patch("/{uid}", status_code=status.HTTP_200_OK, response_model=LoanRead)
@@ -76,7 +76,7 @@ async def update_loan_record(
     """
     loan: Loan = await loan_service.update_loan(uid, user, loan_data, session)
 
-    return {"message": "Loan Updated!", "loan": loan}
+    return {"message": "Loan Updated!", "loan": loan.model_dump(mode="json", exclude_none=False, exclude_unset=False)}
 
 
 @loan_router.get("", status_code=status.HTTP_200_OK, response_model=List[LoanRead])
@@ -150,7 +150,7 @@ async def get_loan_by_uid(
     if loan is None:
         raise LoanNotFound()
 
-    return {"message": "Ok!", "loan": loan}
+    return {"message": "Ok!", "loan": loan.model_dump(mode="json", exclude_none=False, exclude_unset=False)}
 
 
 @loan_router.delete("/{uid}", status_code=status.HTTP_200_OK)
@@ -176,7 +176,7 @@ async def delete_loan_record(
     loan = await loan_service.get_loan_by_uid(session, user, uid)
     if loan is None:
         raise LoanNotFound()
-    
+
     await loan_service.delete_loan(uid, user, session)
 
     return {"message": "Loan Deleted Successfully!"}
