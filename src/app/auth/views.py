@@ -171,12 +171,12 @@ async def verify_user_account(token: str, session: AsyncSession = Depends(get_se
             user=user, email_data=user_email, session=session
         )
 
-        return JSONResponse(
-            content={
-                "message": "Account verified successfully. Login with your credentials"
+        return {
+                "message": "Account verified successfully. Login with your credentials",
+                "status": status.HTTP_200_OK,
+                "user": user
             },
-            status_code=status.HTTP_200_OK,
-        )
+
 
     return JSONResponse(
         content={"message": "Error occurred during verification"},
