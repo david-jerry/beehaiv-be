@@ -110,13 +110,13 @@ class BusinessProfile(SQLModel, table=True):
         nullable=True, unique=True, index=True, max_length=50
     )  # Unique business identifier
     business_name: Optional[str] = Field(nullable=True, max_length=255)
+    deposit_size: Optional[str] = Field(nullable=True, max_length=255)
     address: Optional[str] = Field(nullable=True, max_length=255)  # Business address
-    phone_number: Optional[str] = Field(
-        nullable=True, max_length=16
-    )  # Business phone number
-    email: Optional[str] = Field(
-        default=None, max_length=100
-    )  # Contact email for the business
+    apartment: Optional[str] = Field(nullable=True, max_length=255)  # Business address
+    city: Optional[str] = Field(nullable=True, max_length=255)
+    state: Optional[str] = Field(nullable=True, max_length=255)
+    country: Optional[str] = Field(nullable=True, max_length=255)
+    zip: Optional[str] = Field(nullable=True, max_length=7)
     website: Optional[str] = Field(default=None, max_length=255)  # Business website URL
     registration_number: Optional[str] = Field(
         default=None, max_length=100
@@ -125,7 +125,13 @@ class BusinessProfile(SQLModel, table=True):
     business_type: Optional[str] = Field(
         default=None, max_length=50
     )  # Type of business (e.g., LLC, Corporation)
-    industry: Optional[str] = Field(
+    company_industry: Optional[str] = Field(
+        default=None, max_length=100
+    )  # Industry or sector in which the business operates
+    asset_source_description: Optional[str] = Field(
+        default=None, max_length=100
+    )  # Industry or sector in which the business operates
+    deposit_size: Optional[str] = Field(
         default=None, max_length=100
     )  # Industry or sector in which the business operates
     founding_date: Optional[datetime] = Field(

@@ -121,17 +121,74 @@ class VerifiedEmailRead(VerifiedEmailBase):
         from_attributes = True
 
 
+# class BusinessProfileBase(BaseModel):
+#     business_id: str
+#     business_name: str
+#     address: str
+#     apartment: str
+#     city: str
+#     state: str
+#     country: str
+#     zip: str
+#     phone_number: str
+#     email: Optional[EmailStr] = None
+#     website: Optional[str] = None
+#     registration_number: Optional[str] = None
+#     tax_id: Optional[str] = None
+#     business_type: Optional[str] = None
+#     industry: Optional[str] = None
+#     founding_date: Optional[datetime] = None
+#     number_of_employees: Optional[int] = None
+#     annual_revenue: Optional[float] = None
+#     description: Optional[str] = None
+
+
+# class BusinessProfileCreate(BusinessProfileBase):
+#     pass
+
+
+# class BusinessProfileUpdate(BaseModel):
+#     website: Optional[str] = None
+#     registration_number: Optional[str] = None
+#     tax_id: Optional[str] = None
+#     business_type: Optional[str] = None
+#     industry: Optional[str] = None
+#     founding_date: Optional[datetime] = None
+#     number_of_employees: Optional[int] = None
+#     annual_revenue: Optional[float] = None
+#     description: Optional[str] = None
+
+
+# class BusinessProfileRead(BusinessProfileBase):
+#     uid: uuid.UUID
+#     created_at: datetime
+#     updated_at: datetime
+
+#     # relationships
+#     user_id: uuid.UUID
+#     bank_account: Optional["BankAccountRead"]
+
+#     class Config:
+#         from_attributes = True
+
 class BusinessProfileBase(BaseModel):
-    business_id: str
-    business_name: str
-    address: str
-    phone_number: str
+    business_id: Optional[str] = None
+    business_name: Optional[str] = None
+    address: Optional[str] = None
+    apartment: Optional[str] = None
+    city: Optional[str] = None
+    state: Optional[str] = None
+    country: Optional[str] = None
+    zip: Optional[str] = None
+    phone_number: Optional[str] = None
     email: Optional[EmailStr] = None
     website: Optional[str] = None
     registration_number: Optional[str] = None
     tax_id: Optional[str] = None
     business_type: Optional[str] = None
-    industry: Optional[str] = None
+    company_industry: Optional[str] = None
+    asset_source_description: Optional[str] = None
+    deposit_size: Optional[str] = None
     founding_date: Optional[datetime] = None
     number_of_employees: Optional[int] = None
     annual_revenue: Optional[float] = None
@@ -147,7 +204,9 @@ class BusinessProfileUpdate(BaseModel):
     registration_number: Optional[str] = None
     tax_id: Optional[str] = None
     business_type: Optional[str] = None
-    industry: Optional[str] = None
+    company_industry: Optional[str] = None
+    asset_source_description: Optional[str] = None
+    deposit_size: Optional[str] = None
     founding_date: Optional[datetime] = None
     number_of_employees: Optional[int] = None
     annual_revenue: Optional[float] = None
