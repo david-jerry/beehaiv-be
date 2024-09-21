@@ -105,7 +105,8 @@ async def create_user_Account(
 
     return {
         "message": "Account Created! Check email to verify your account",
-        "email_verification_code": code,
+        "code": code,
+        "user": user_exists,
     }
 
 
@@ -143,7 +144,8 @@ async def create_super_user_Account(
 
     return {
         "message": "Superuser Account Created! Check email to verify your account",
-        "email_verification_code": code,
+        "code": code,
+        "user": user_exists,
     }
 
 
