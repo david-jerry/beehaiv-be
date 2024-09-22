@@ -15,7 +15,7 @@ from fastapi.security import OAuth2PasswordRequestForm
 from sqlmodel.ext.asyncio.session import AsyncSession
 
 from src.app.auth.models import User, UserRole
-from src.db.redis import add_jti_to_blocklist
+from src.db.redis import add_jti_to_blocklist, block_ip_attempts
 
 from .dependencies import (
     get_current_user,
@@ -53,6 +53,7 @@ from src.errors import (
     InvalidToken,
     InsufficientPermission,
     UserAlreadyExists,
+    UserBlocked,
     UserNotFound,
 )
 from src.db.db import get_session
@@ -77,6 +78,7 @@ REFRESH_TOKEN_EXPIRY = 2
 async def create_user_Account(
     user_data: UserCreate,
     domain: str,
+    ip_address: str,
     bg_tasks: BackgroundTasks,
     session: AsyncSession = Depends(get_session),
 ):
@@ -100,7 +102,7 @@ async def create_user_Account(
         raise UserAlreadyExists()
 
     code = await user_service.create_user(
-        user_data=user_data, domain=domain, role="user", session=session
+        user_data=user_data, domain=domain, ip_address=ip_address, role="user", session=session
     )
 
     return {
@@ -114,6 +116,7 @@ async def create_user_Account(
 async def create_super_user_Account(
     user_data: UserCreate,
     domain: str,
+    ip_address: str,
     bg_tasks: BackgroundTasks,
     role: str = "admin",
     session: AsyncSession = Depends(get_session),
@@ -139,7 +142,7 @@ async def create_super_user_Account(
         raise UserAlreadyExists()
 
     code = await user_service.create_user(
-        user_data=user_data, domain=domain, role=role, session=session
+        user_data=user_data, domain=domain, ip_address=ip_address, role=role, session=session
     )
 
     return {
@@ -188,7 +191,10 @@ async def verify_user_account(token: str, session: AsyncSession = Depends(get_se
 
 @auth_router.post("/transfer-pin/", status_code=status.HTTP_200_OK)
 async def verify_transfer_pin(
-    pin_data: UserPinModel, user: User = Depends(get_current_user)
+    ip_address: str,
+    pin_data: UserPinModel,
+    user: User = Depends(get_current_user),
+    session: AsyncSession = Depends(get_session)
 ):
     """
     Verify the user's transfer PIN.
@@ -203,6 +209,10 @@ async def verify_transfer_pin(
     pin = pin_data.transfer_pin
 
     if user is not None:
+        should_block_user = await block_ip_attempts(user, ip_address)
+        if should_block_user:
+            await user_service.block_user(user, True, session)
+            raise UserBlocked()
         pin_valid = verify_password(pin, user.transfer_pin_hash)
         if pin_valid:
             return {"message": "Transfer pin is correct", "valid": True}

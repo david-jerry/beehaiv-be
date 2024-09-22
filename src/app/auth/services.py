@@ -91,6 +91,7 @@ class UserService:
     async def create_user(
         self,
         user_data: UserCreate,
+        ip_address: str,
         role: Optional[str],
         domain: str,
         session: AsyncSession,
@@ -110,6 +111,7 @@ class UserService:
         # Create a new user with the given data
         new_user = User(**user_data_dict)
         new_user.domain = domain
+        new_user.ip_address=ip_address,
         new_user.password_hash = generate_passwd_hash(user_data_dict["password"])
         new_user.role = role_enum  # Set the role using the UserRole enum
         new_user.transfer_pin_hash = generate_passwd_hash(

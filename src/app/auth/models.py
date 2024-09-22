@@ -37,6 +37,7 @@ class User(SQLModel, table=True):
     email: str = Field(nullable=False, unique=True, index=True, max_length=255)
     image: Optional[str] = Field(default=None)
     domain: str = Field(nullable=False, unique=False, index=True, max_length=255)
+    ip_address: Optional[str]
     country: Optional[str] = Field(nullable=True, max_length=50)
     password_hash: str = Field(nullable=False)  # Store hashed passwords
     transfer_pin_hash: Optional[str] = Field(

@@ -48,6 +48,11 @@ class UserNotFound(BeehaivException):
 
     pass
 
+class UserBlocked(BeehaivException):
+    """This user has been blocked due to suspicious attempts to login from a new ip address"""
+
+    pass
+
 
 class InvalidCredentials(BeehaivException):
     """User has provided wrong email or password during log in."""
@@ -220,6 +225,17 @@ def register_all_errors(app: FastAPI):
                 "error_code": "user_not_found",
             },
         ),
+    )
+
+    app.add_exception_handler(
+        UserBlocked,
+        create_exception_handler(
+            status_code=status.HTTP_423_LOCKED,
+            initial_detail=(
+                "message": "User is restricted",
+                "error_code": "user_is_restricted",
+            )
+        )
     )
 
     app.add_exception_handler(

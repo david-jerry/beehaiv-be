@@ -59,6 +59,7 @@ class UserUpdate(UserBase):
 # Schema for reading a user's data
 class UserRead(UserBase):
     uid: uuid.UUID  # Unique identifier for the user
+    ip_address: str
     image: Optional[str]
     is_blocked: bool
     joined: datetime  # Timestamp when the user joined
