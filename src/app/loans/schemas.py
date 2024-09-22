@@ -58,7 +58,7 @@ class FounderMortgageCreate(FounderMortgageBase):
 
 # Schema for reading a FounderMortgage entry
 class FounderMortgageRead(FounderMortgageBase):
-    uid: uuid.UUID 
+    uid: uuid.UUID
     created_at: datetime
     updated_at: datetime
 

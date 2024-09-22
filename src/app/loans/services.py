@@ -23,6 +23,7 @@ class LoanService:
         result = await session.exec(statement)
 
         return result.all()
+
     async def get_all_loans(
         self,
         session: AsyncSession,
@@ -76,6 +77,10 @@ class LoanService:
         session.add(loan)
         await session.commit()
         await session.refresh(loan)
+
+        user.loans.append(loan)
+        await session.commit()
+        await session.refresh(user)
 
         return loan
 

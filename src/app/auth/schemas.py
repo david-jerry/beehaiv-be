@@ -5,6 +5,7 @@ from enum import Enum
 import uuid
 
 from src.app.transactions.schemas import TransactionRead
+from src.app.loans.schemas import LoanRead
 
 
 # Enum for user roles
@@ -32,6 +33,7 @@ class UserBase(BaseModel):
     phone_number: Optional[
         Annotated[str, constr(min_length=10, max_length=14)]
     ]  # Phone number with length constraints
+    ip_address: Optional[str]
     email: Optional[EmailStr]  # Email with validation
     domain: Optional[Annotated[str, constr(min_length=10, max_length=255)]]
     country: Optional[
@@ -59,7 +61,6 @@ class UserUpdate(UserBase):
 # Schema for reading a user's data
 class UserRead(UserBase):
     uid: uuid.UUID  # Unique identifier for the user
-    ip_address: str
     image: Optional[str]
     is_blocked: bool
     joined: datetime  # Timestamp when the user joined
@@ -72,6 +73,7 @@ class UserRead(UserBase):
         []
     )  # List of business profiles related to the user
     transactions: List["TransactionRead"] = []
+    loans: List["LoanRead"] = []
 
     class Config:
         from_attributes = True  # Enable ORM mode for SQLModel compatibility
@@ -171,6 +173,7 @@ class VerifiedEmailRead(VerifiedEmailBase):
 
 #     class Config:
 #         from_attributes = True
+
 
 class BusinessProfileBase(BaseModel):
     business_id: Optional[str] = None

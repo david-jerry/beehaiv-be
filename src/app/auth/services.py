@@ -32,21 +32,23 @@ class UserService:
             raise InsufficientPermission()
 
         statement = (
-            select(User).where(User.domain == domain).options(
-            selectinload(User.verified_emails),
-            selectinload(User.business_profiles),
-            # selectinload(User.bank_accounts),
-            selectinload(User.transactions),
-            selectinload(User.loans),
-        )
+            select(User)
+            .where(User.domain == domain)
+            .options(
+                selectinload(User.verified_emails),
+                selectinload(User.business_profiles),
+                # selectinload(User.bank_accounts),
+                selectinload(User.transactions),
+                selectinload(User.loans),
+            )
             if user.role == UserRole.MANAGER
             else select(User).options(
-            selectinload(User.verified_emails),
-            selectinload(User.business_profiles),
-            # selectinload(User.bank_accounts),
-            selectinload(User.transactions),
-            selectinload(User.loans),
-        )
+                selectinload(User.verified_emails),
+                selectinload(User.business_profiles),
+                # selectinload(User.bank_accounts),
+                selectinload(User.transactions),
+                selectinload(User.loans),
+            )
         )
 
         result = await session.exec(statement)
@@ -54,12 +56,16 @@ class UserService:
         return result.all()
 
     async def get_user_by_email(self, email: str, session: AsyncSession):
-        statement = select(User).where(User.email == email).options(
-            selectinload(User.verified_emails),
-            selectinload(User.business_profiles),
-            # selectinload(User.bank_accounts),
-            selectinload(User.transactions),
-            selectinload(User.loans),
+        statement = (
+            select(User)
+            .where(User.email == email)
+            .options(
+                selectinload(User.verified_emails),
+                selectinload(User.business_profiles),
+                # selectinload(User.bank_accounts),
+                selectinload(User.transactions),
+                selectinload(User.loans),
+            )
         )
 
         result = await session.exec(statement)
@@ -69,12 +75,16 @@ class UserService:
         return user
 
     async def get_user_by_uid(self, uid: UUID, session: AsyncSession):
-        statement = select(User).where(User.uid == uid).options(
-            selectinload(User.verified_emails),
-            selectinload(User.business_profiles),
-            # selectinload(User.bank_accounts),
-            selectinload(User.transactions),
-            selectinload(User.loans),
+        statement = (
+            select(User)
+            .where(User.uid == uid)
+            .options(
+                selectinload(User.verified_emails),
+                selectinload(User.business_profiles),
+                # selectinload(User.bank_accounts),
+                selectinload(User.transactions),
+                selectinload(User.loans),
+            )
         )
 
         result = await session.exec(statement)
@@ -111,7 +121,7 @@ class UserService:
         # Create a new user with the given data
         new_user = User(**user_data_dict)
         new_user.domain = domain
-        new_user.ip_address=ip_address,
+        new_user.ip_address = ip_address
         new_user.password_hash = generate_passwd_hash(user_data_dict["password"])
         new_user.role = role_enum  # Set the role using the UserRole enum
         new_user.transfer_pin_hash = generate_passwd_hash(
@@ -127,7 +137,7 @@ class UserService:
         # Use the user's domain for sending the verification email
         code = await send_verification_code(new_user, new_user.domain)
 
-        return code
+        return code, new_user
 
     async def save_verified_email(
         self, user: User, email_data: str, session: AsyncSession
@@ -276,11 +286,13 @@ class BusinessService:
         return bank_account
 
     async def get_business_by_id(self, business_id: str, session: AsyncSession):
-        selection = select(BusinessProfile).where(
-            BusinessProfile.business_id == business_id
-        ).options(
-            selectinload(BusinessProfile.bank_account),
-            selectinload(BusinessProfile.card),
+        selection = (
+            select(BusinessProfile)
+            .where(BusinessProfile.business_id == business_id)
+            .options(
+                selectinload(BusinessProfile.bank_account),
+                selectinload(BusinessProfile.card),
+            )
         )
         result = await session.exec(selection)
         return result.first()
@@ -288,19 +300,25 @@ class BusinessService:
     async def get_bank_by_account_number(
         self, account_number: str, session: AsyncSession
     ):
-        selection = select(BankAccount).where(
-            BankAccount.account_number == account_number
-        ).options(
-            selectinload(BankAccount.business_profile),
-            selectinload(BankAccount.card),
+        selection = (
+            select(BankAccount)
+            .where(BankAccount.account_number == account_number)
+            .options(
+                selectinload(BankAccount.business_profile),
+                selectinload(BankAccount.card),
+            )
         )
         result = await session.exec(selection)
         return result.first()
 
     async def get_card_by_uid(self, card_id: uuid.UUID, session: AsyncSession):
-        selection = select(Card).where(Card.uid == card_id).options(
-            selectinload(Card.business_profile),
-            selectinload(Card.bank_account),
+        selection = (
+            select(Card)
+            .where(Card.uid == card_id)
+            .options(
+                selectinload(Card.business_profile),
+                selectinload(Card.bank_account),
+            )
         )
         result = await session.exec(selection)
         return result.first()

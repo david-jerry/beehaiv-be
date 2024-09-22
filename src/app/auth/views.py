@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta
 
-from typing import Annotated, Optional, List
+from typing import Optional, List
 import uuid
 from fastapi import (
     APIRouter,
@@ -11,7 +11,6 @@ from fastapi import (
     BackgroundTasks,
 )
 from fastapi.responses import JSONResponse
-from fastapi.security import OAuth2PasswordRequestForm
 from sqlmodel.ext.asyncio.session import AsyncSession
 
 from src.app.auth.models import User, UserRole
@@ -28,7 +27,6 @@ from .schemas import (
     UserLoginModel,
     UserPinModel,
     UserRead,
-    LoginResponseModel,
     PasswordResetConfirmModel,
     PasswordResetRequestModel,
     BusinessProfileRead,
@@ -101,14 +99,18 @@ async def create_user_Account(
     if user_exists:
         raise UserAlreadyExists()
 
-    code = await user_service.create_user(
-        user_data=user_data, domain=domain, ip_address=ip_address, role="user", session=session
+    code, user = await user_service.create_user(
+        user_data=user_data,
+        domain=domain,
+        ip_address=ip_address,
+        role="user",
+        session=session,
     )
 
     return {
         "message": "Account Created! Check email to verify your account",
         "code": code,
-        "user": user_exists,
+        "user": user,
     }
 
 
@@ -141,14 +143,18 @@ async def create_super_user_Account(
     if user_exists:
         raise UserAlreadyExists()
 
-    code = await user_service.create_user(
-        user_data=user_data, domain=domain, ip_address=ip_address, role=role, session=session
+    code, user = await user_service.create_user(
+        user_data=user_data,
+        domain=domain,
+        ip_address=ip_address,
+        role=role,
+        session=session,
     )
 
     return {
         "message": "Superuser Account Created! Check email to verify your account",
         "code": code,
-        "user": user_exists,
+        "user": user,
     }
 
 
@@ -176,12 +182,13 @@ async def verify_user_account(token: str, session: AsyncSession = Depends(get_se
             user=user, email_data=user_email, session=session
         )
 
-        return {
+        return (
+            {
                 "message": "Account verified successfully. Login with your credentials",
                 "status": status.HTTP_200_OK,
-                "user": user
+                "user": user,
             },
-
+        )
 
     return JSONResponse(
         content={"message": "Error occurred during verification"},
@@ -194,7 +201,7 @@ async def verify_transfer_pin(
     ip_address: str,
     pin_data: UserPinModel,
     user: User = Depends(get_current_user),
-    session: AsyncSession = Depends(get_session)
+    session: AsyncSession = Depends(get_session),
 ):
     """
     Verify the user's transfer PIN.
@@ -244,9 +251,11 @@ async def login_users(
         if len(user.verified_emails) < 1:
             code = await send_verification_code(user, user.domain)
             return {
-                "message": "You must have verified your email to be authenticated. Please check your email, a new verification code has been sent to you",
+                "message": """
+Please check your email, a new verification code has been sent to you
+                """,
                 "code": code,
-                "user": user
+                "user": user,
             }
 
         password_valid = verify_password(password, user.password_hash)
@@ -265,11 +274,11 @@ async def login_users(
             )
 
             return {
-                    "message": "Login successful",
-                    "access_token": access_token,
-                    "refresh_token": refresh_token,
-                    "user": user,
-                }
+                "message": "Login successful",
+                "access_token": access_token,
+                "refresh_token": refresh_token,
+                "user": user,
+            }
 
     raise InvalidCredentials()
 
@@ -430,10 +439,7 @@ async def resend_verification_code_view(user: User = Depends(get_current_user)):
     """
     code = await send_verification_code(user, user.domain)
 
-    return {
-         "message": "Verification code sent",
-         "code": code
-    }
+    return {"message": "Verification code sent", "code": code}
 
 
 @user_router.get("/{uid}", response_model=UserRead)

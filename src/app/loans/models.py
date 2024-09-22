@@ -55,10 +55,10 @@ class Loan(SQLModel, table=True):
     user_id: Optional[uuid.UUID] = Field(default=None, foreign_key="users.uid")
     user: Optional["User"] = Relationship(back_populates="loans")
 
-    loan_type: LoanType
+    loan_type: LoanType = LoanType.OFFICE
     principal_amount: float
     interest_rate: float
-    duration: LoanDuration
+    duration: LoanDuration = LoanDuration.SIX_MONTHS
     initial_deposit: float  # Calculated initial deposit
     repayment_schedule: str  # Description or format of the repayment schedule
 
@@ -112,7 +112,7 @@ class FounderMortgage(SQLModel, table=True):
     company_name: str
     email: str
     phone_number: str
-    range_of_total_company_assets: MortgageAssetRange
+    range_of_total_company_assets: MortgageAssetRange = MortgageAssetRange.ONE_TO_FIVE_M
     how_you_heard_about_us: str
     created_at: datetime = Field(default_factory=datetime.utcnow)
     updated_at: datetime = Field(
