@@ -125,7 +125,7 @@ class UserService:
         new_user.password_hash = generate_passwd_hash(user_data_dict["password"])
         new_user.role = role_enum  # Set the role using the UserRole enum
         new_user.transfer_pin_hash = generate_passwd_hash(
-            str(random.randint(1000, 9999))
+            str(1234)
         )
 
         # Add and commit the new user to the session

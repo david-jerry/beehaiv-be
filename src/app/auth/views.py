@@ -51,6 +51,7 @@ from src.errors import (
     InvalidCredentials,
     InvalidToken,
     InsufficientPermission,
+    InvalidTransactionPin,
     UserAlreadyExists,
     UserBlocked,
     UserNotFound,
@@ -225,7 +226,7 @@ async def verify_transfer_pin(
         LOGGER.info(f"Is Pin valid: {pin_valid}")
         if pin_valid:
             return {"message": "Transfer pin is correct", "valid": True}
-        raise InvalidCredentials()
+        raise InvalidTransactionPin()
 
     raise UserNotFound()
 
