@@ -53,7 +53,7 @@ class TransactionHistory(SQLModel, table=True):
     domain: str
 
     amount: float
-    transaction_type: TransactionType.TRANSFER
+    transaction_type: TransactionType = TransactionType.TRANSFER
     status: TransactionStatus = TransactionStatus.PENDING  # Default status
     created_at: datetime = Field(default_factory=datetime.utcnow)
     updated_at: datetime = Field(
