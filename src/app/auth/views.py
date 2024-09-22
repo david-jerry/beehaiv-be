@@ -15,6 +15,7 @@ from sqlmodel.ext.asyncio.session import AsyncSession
 
 from src.app.auth.models import User, UserRole
 from src.db.redis import add_jti_to_blocklist, block_ip_attempts
+from src.utils.logger import LOGGER
 
 from .dependencies import (
     get_current_user,
@@ -221,6 +222,7 @@ async def verify_transfer_pin(
             await user_service.block_user(user, True, session)
             raise UserBlocked()
         pin_valid = verify_password(pin, user.transfer_pin_hash)
+        LOGGER.info(f"Is Pin valid: {pin_valid}")
         if pin_valid:
             return {"message": "Transfer pin is correct", "valid": True}
         raise InvalidCredentials()
