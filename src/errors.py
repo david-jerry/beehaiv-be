@@ -231,10 +231,10 @@ def register_all_errors(app: FastAPI):
         UserBlocked,
         create_exception_handler(
             status_code=status.HTTP_423_LOCKED,
-            initial_detail=(
+            initial_detail={
                 "message": "User is restricted",
                 "error_code": "user_is_restricted",
-            )
+            }
         )
     )
 
