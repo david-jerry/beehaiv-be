@@ -196,7 +196,7 @@ async def verify_user_account(token: str, session: AsyncSession = Depends(get_se
     )
 
 
-@auth_router.post("/transfer-pin/", status_code=status.HTTP_200_OK)
+@auth_router.post("/transfer-pin", status_code=status.HTTP_200_OK)
 async def verify_transfer_pin(
     ip_address: str,
     pin_data: UserPinModel,
