@@ -8,35 +8,9 @@ from enum import Enum
 
 if TYPE_CHECKING:
     from src.app.auth.models import User
-
+from .schemas import TransactionStatus, TransactionType
 
 # Enum for transaction type
-class TransactionType(str, Enum):
-    DEPOSIT = "deposit"
-    WITHDRAWAL = "withdrawal"
-    TRANSFER = "transfer"
-
-    @classmethod
-    def from_str(cls, role_str: str) -> "TransactionType":
-        try:
-            return cls(role_str)
-        except ValueError:
-            raise ValueError(f"'{role_str}' is not a valid TransactionType")
-
-
-# Enum for transaction status
-class TransactionStatus(str, Enum):
-    PENDING = "pending"
-    COMPLETED = "completed"
-    FAILED = "failed"
-
-    @classmethod
-    def from_str(cls, role_str: str) -> "TransactionStatus":
-        try:
-            return cls(role_str)
-        except ValueError:
-            raise ValueError(f"'{role_str}' is not a valid TransactionStatus")
-
 
 # TransactionHistory model
 class TransactionHistory(SQLModel, table=True):

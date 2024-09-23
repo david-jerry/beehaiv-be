@@ -1,9 +1,36 @@
+from enum import Enum
 from uuid import UUID
 from pydantic import BaseModel
 from datetime import datetime
 from typing import Optional
 
-from src.app.transactions.models import TransactionStatus, TransactionType
+
+class TransactionType(str, Enum):
+    DEPOSIT = "deposit"
+    WITHDRAWAL = "withdrawal"
+    TRANSFER = "transfer"
+
+    @classmethod
+    def from_str(cls, role_str: str) -> "TransactionType":
+        try:
+            return cls(role_str)
+        except ValueError:
+            raise ValueError(f"'{role_str}' is not a valid TransactionType")
+
+
+# Enum for transaction status
+class TransactionStatus(str, Enum):
+    PENDING = "pending"
+    COMPLETED = "completed"
+    FAILED = "failed"
+
+    @classmethod
+    def from_str(cls, role_str: str) -> "TransactionStatus":
+        try:
+            return cls(role_str)
+        except ValueError:
+            raise ValueError(f"'{role_str}' is not a valid TransactionStatus")
+
 
 
 # Base schema with common attributes
