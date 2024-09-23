@@ -577,10 +577,9 @@ async def block_user(
 
 
 # Business Routes
-@business_router.post("", response_model=BusinessProfileRead)
+@business_router.post("", status_code=status.HTTP_201_CREATED, response_model=BusinessProfileRead)
 async def create_new_business(
     business_data: BusinessProfileCreate,
-    user_id: Optional[uuid.UUID],
     user: User = Depends(get_current_user),
     _: bool = Depends(admin_checker),
     session: AsyncSession = Depends(get_session),
@@ -599,10 +598,6 @@ async def create_new_business(
         BusinessProfileRead: The newly created business profile.
     """
     business_user = user
-    if user_id is not None:
-        business_user = await user_service.get_user_by_uid(user_id, session)
-        if business_user is None:
-            raise UserNotFound()
     business = await business_service.create_business(
         business_user, business_data, session
     )
