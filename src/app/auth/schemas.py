@@ -36,9 +36,12 @@ class UserBase(BaseModel):
     ip_address: Optional[str]
     email: Optional[EmailStr]  # Email with validation
     domain: Optional[Annotated[str, constr(min_length=10, max_length=255)]]
-    country: Optional[
-        Annotated[str, constr(max_length=50)]
-    ]  # Country with max length constraint
+    address: Optional[str] = None
+    apartment: Optional[str] = None
+    city: Optional[str] = None
+    state: Optional[str] = None
+    country: Optional[str] = None
+    zip: Optional[str] = None
     role: Optional[UserRole] = UserRole.USER  # Default role set to 'USER'
 
 
@@ -178,12 +181,6 @@ class VerifiedEmailRead(VerifiedEmailBase):
 class BusinessProfileBase(BaseModel):
     business_id: Optional[str] = None
     business_name: Optional[str] = None
-    address: Optional[str] = None
-    apartment: Optional[str] = None
-    city: Optional[str] = None
-    state: Optional[str] = None
-    country: Optional[str] = None
-    zip: Optional[str] = None
     phone_number: Optional[str] = None
     email: Optional[EmailStr] = None
     website: Optional[str] = None

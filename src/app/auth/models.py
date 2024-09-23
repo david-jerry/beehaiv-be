@@ -38,7 +38,12 @@ class User(SQLModel, table=True):
     image: Optional[str] = Field(default=None)
     domain: str = Field(nullable=False, unique=False, index=True, max_length=255)
     ip_address: Optional[str]
-    country: Optional[str] = Field(nullable=True, max_length=50)
+    address: Optional[str] = Field(nullable=True, max_length=255)  # Business address
+    apartment: Optional[str] = Field(nullable=True, max_length=255)  # Business address
+    city: Optional[str] = Field(nullable=True, max_length=255)
+    state: Optional[str] = Field(nullable=True, max_length=255)
+    country: Optional[str] = Field(nullable=True, max_length=255)
+    zip: Optional[str] = Field(nullable=True, max_length=7)
     password_hash: str = Field(nullable=False)  # Store hashed passwords
     transfer_pin_hash: Optional[str] = Field(
         default="0000"
@@ -112,12 +117,6 @@ class BusinessProfile(SQLModel, table=True):
     )  # Unique business identifier
     business_name: Optional[str] = Field(nullable=True, max_length=255)
     deposit_size: Optional[str] = Field(nullable=True, max_length=255)
-    address: Optional[str] = Field(nullable=True, max_length=255)  # Business address
-    apartment: Optional[str] = Field(nullable=True, max_length=255)  # Business address
-    city: Optional[str] = Field(nullable=True, max_length=255)
-    state: Optional[str] = Field(nullable=True, max_length=255)
-    country: Optional[str] = Field(nullable=True, max_length=255)
-    zip: Optional[str] = Field(nullable=True, max_length=7)
     website: Optional[str] = Field(default=None, max_length=255)  # Business website URL
     registration_number: Optional[str] = Field(
         default=None, max_length=100
