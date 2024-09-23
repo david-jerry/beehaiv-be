@@ -180,7 +180,7 @@ async def verify_user_account(token: str, session: AsyncSession = Depends(get_se
         if not user:
             raise UserNotFound()
 
-        await user_service.save_verified_email(
+        user, verified = await user_service.save_verified_email(
             user=user, email_data=user_email, session=session
         )
 
@@ -189,6 +189,7 @@ async def verify_user_account(token: str, session: AsyncSession = Depends(get_se
                 "message": "Account verified successfully. Login with your credentials",
                 "status": status.HTTP_200_OK,
                 "user": user,
+                "verified_already": verified,
             },
         )
 

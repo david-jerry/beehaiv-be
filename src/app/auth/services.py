@@ -143,6 +143,15 @@ class UserService:
     async def save_verified_email(
         self, user: User, email_data: str, session: AsyncSession
     ):
+        # Check if the email is already verified
+        existing_email = next(
+            (email for email in user.verified_emails if email.email == email_data), None
+        )
+
+        if existing_email:
+            return user, True
+
+        # If not verified, proceed to save the new verified email
         new_email = VerifiedEmail(email=email_data)
         new_email.user_id = user.uid
         new_email.user = user
@@ -153,7 +162,7 @@ class UserService:
         user.verified_emails.append(new_email)
         await session.commit()
         await session.refresh(user)
-        return user
+        return user, False
 
     async def update_user(self, user: User, user_data: dict, session: AsyncSession):
         if user_data.get("transfer_pin"):
