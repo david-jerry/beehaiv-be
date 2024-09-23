@@ -12,6 +12,7 @@ from sqlalchemy.orm import selectinload
 
 from src.app.auth.mails import send_card_pin, send_new_bank_account_details
 from src.db.cloudinary import upload_image
+from src.db.redis import store_allowed_ip
 from src.errors import BankAccountNotFound, InsufficientPermission
 from src.utils.logger import LOGGER
 
@@ -189,6 +190,10 @@ class UserService:
         await session.commit()
         await session.refresh(user)
 
+        return user
+
+    async def add_allowed_ip(self, user: User, ip_address: str):
+        await store_allowed_ip(user.uid, ip_address)
         return user
 
 

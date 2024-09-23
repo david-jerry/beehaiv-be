@@ -38,12 +38,15 @@ async def block_ip_attempts(user: User, new_ip: str) -> bool:
     Returns:
         int: The number of attempts for the specific IP.
     """
-    if user.ip_address != new_ip:
+    allowed_ip = await redis_client.get(f"allowed:{user.uid}:{new_ip}")
+    if user.ip_address != new_ip and allowed_ip is None:
         attempts = await redis_client.get(f"new_ip:{user.uid}:{new_ip}")
-        calc_attempts = int(attempts.decode("utf-8")) + 1
+        calc_attempts = 1
+        if attempts:
+            calc_attempts = int(attempts.decode("utf-8")) + 1
 
         # Redis returns None if the key doesn't exist
-        if calc_attempts < 4:
+        if calc_attempts <= 2:
             await store_new_ip(user.uid, new_ip, calc_attempts)
             return False # If there are no attempts greater than 3, do not block
 
@@ -55,13 +58,25 @@ async def block_ip_attempts(user: User, new_ip: str) -> bool:
 async def store_new_ip(
     user_id: uuid.UUID, new_ip: str, attempts: int
 ):
-    await redis_client.set(f"new_ip:{user_id}:{new_ip}", attempts, exp=SECURITY_EXPIRY)
+    await redis_client.set(f"new_ip:{user_id}:{new_ip}", attempts, ex=SECURITY_EXPIRY)
 
+async def store_allowed_ip(
+    user_id: uuid.UUID, new_ip: str
+):
+    banned_ip = await redis_client.get(f"new_ip:{user_id}:{new_ip}")
+    if banned_ip:
+        delete_ip_security(user_id,new_ip)
+    await redis_client.set(f"allowed:{user_id}:{new_ip}", new_ip, ex=None)
 
 async def delete_ip_security(
     user_id: uuid.UUID, new_ip: str
 ):
     await redis_client.delete(f"new_ip:{user_id}:{new_ip}")
+
+async def delete_allowed_ip(
+    user_id: uuid.UUID, new_ip: str
+):
+    await redis_client.delete(f"allowed:{user_id}:{new_ip}")
 
 # Get the reset code from Redis
 async def get_password_reset_code(user_id: uuid.UUID) -> Optional[str]:

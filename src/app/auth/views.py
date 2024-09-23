@@ -419,6 +419,12 @@ async def get_current_active_user(
     return user
 
 
+@user_router.get("/me/allow_ip", response_model=UserRead)
+async def set_allowed_ip(ip: str, user: User = Depends(get_current_user)):
+    user = await user_service.add_allowed_ip(user, ip)
+    return user
+
+
 @user_router.get("/me/request-new-verification", status_code=status.HTTP_200_OK)
 async def resend_verification_code_view(user: User = Depends(get_current_user)):
     """
