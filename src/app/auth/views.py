@@ -280,7 +280,7 @@ Please check your email, a new verification code has been sent to you
         )
 
         user: User = await get_current_active_user()
-        user_data = UserRead(**user.model_dump())
+        user_data = UserRead(**user.dict())
 
         return {
             "message": "Login successful",
