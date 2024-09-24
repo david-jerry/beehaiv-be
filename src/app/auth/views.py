@@ -280,8 +280,6 @@ Please check your email, a new verification code has been sent to you
             expiry=timedelta(days=REFRESH_TOKEN_EXPIRY),
         )
 
-        user = await get_current_active_user()
-
         return {
             "message": "Login successful",
             "access_token": access_token,
