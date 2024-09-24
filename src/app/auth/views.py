@@ -24,7 +24,6 @@ from .dependencies import (
     AccessTokenBearer,
 )
 from .schemas import (
-    LoginResponseModel,
     UserCreate,
     UserLoginModel,
     UserPinModel,
@@ -250,7 +249,7 @@ async def login_users(
     email = login_data.email
     password = login_data.password
 
-    user: UserRead = await user_service.get_user_by_email(email, session)
+    user = await user_service.get_user_by_email(email, session)
 
     if user is None:
         raise InvalidCredentials()
@@ -279,6 +278,8 @@ Please check your email, a new verification code has been sent to you
             refresh=True,
             expiry=timedelta(days=REFRESH_TOKEN_EXPIRY),
         )
+
+        user: UserRead = await get_current_active_user()
 
         return {
             "message": "Login successful",
