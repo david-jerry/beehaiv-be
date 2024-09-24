@@ -88,8 +88,10 @@ class UserLoginModel(BaseModel):
 
 
 class LoginResponseModel(BaseModel):
-    access_token: str
-    refresh_token: str
+    message: str
+    access_token: Optional[str]
+    refresh_token: Optional[str]
+    code: Optional[str]
     user: UserRead
 
 

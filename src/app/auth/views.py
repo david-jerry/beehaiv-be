@@ -251,40 +251,41 @@ async def login_users(
 
     user = await user_service.get_user_by_email(email, session)
 
-    if user is not None:
-        if len(user.verified_emails) < 1:
-            code = await send_verification_code(user, user.domain)
-            return {
-                "message": """
+    if user is None:
+        raise InvalidCredentials()
+
+    if len(user.verified_emails) < 1:
+        code = await send_verification_code(user, user.domain)
+        return {
+            "message": """
 Please check your email, a new verification code has been sent to you
-                """,
-                "code": code,
-                "user": user,
+            """,
+            "code": code,
+            "user": user,
+        }
+
+    password_valid = verify_password(password, user.password_hash)
+    if password_valid:
+        access_token = create_access_token(
+            user_data={
+                "email": user.email,
+                "user_uid": str(user.uid),
+                "role": user.role,
             }
+        )
+        refresh_token = create_access_token(
+            user_data={"email": user.email, "user_uid": str(user.uid)},
+            refresh=True,
+            expiry=timedelta(days=REFRESH_TOKEN_EXPIRY),
+        )
 
-        password_valid = verify_password(password, user.password_hash)
-        if password_valid:
-            access_token = create_access_token(
-                user_data={
-                    "email": user.email,
-                    "user_uid": str(user.uid),
-                    "role": user.role,
-                }
-            )
-            refresh_token = create_access_token(
-                user_data={"email": user.email, "user_uid": str(user.uid)},
-                refresh=True,
-                expiry=timedelta(days=REFRESH_TOKEN_EXPIRY),
-            )
+        return {
+            "message": "Login successful",
+            "access_token": access_token,
+            "refresh_token": refresh_token,
+            "user": user,
+        }
 
-            return {
-                "message": "Login successful",
-                "access_token": access_token,
-                "refresh_token": refresh_token,
-                "user": user,
-            }
-
-    raise InvalidCredentials()
 
 
 @auth_router.get("/refresh-token", status_code=status.HTTP_200_OK)
