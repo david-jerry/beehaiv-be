@@ -403,6 +403,29 @@ async def reset_account_password(
 
 
 # User Routes
+@user_router.get("", response_model=List[UserRead])
+async def get_users(
+    domain: str,
+    user: User = Depends(get_current_user),
+    session: AsyncSession = Depends(get_session),
+):
+    """
+    Get a list of all users in the specified domain.
+
+    Args:
+        domain (str): The domain to filter users by.
+        user (User): The currently authenticated user.
+        session (AsyncSession): Database session dependency.
+
+    Returns:
+        List[UserRead]: A list of users in the domain.
+    """
+    if user.domain != domain:
+        raise InsufficientPermission()
+    users = await user_service.get_all_users(user, domain, session)
+    return users
+
+
 @user_router.get("/me", response_model=UserRead)
 async def get_current_active_user(
     user: User = Depends(get_current_user), _: bool = Depends(role_checker)
@@ -452,6 +475,27 @@ async def resend_verification_code_view(user: User = Depends(get_current_user)):
     return {"message": "Verification code sent", "code": code}
 
 
+@user_router.put("/me/photo", response_model=UserRead)
+async def update_user_photo(
+    image: UploadFile,
+    current_user: User = Depends(get_current_user),
+    session: AsyncSession = Depends(get_session),
+):
+    """
+    Update the profile photo of the currently authenticated user.
+
+    Args:
+        image (UploadFile): The new profile photo.
+        current_user (User): The currently authenticated user.
+        session (AsyncSession): Database session dependency.
+
+    Returns:
+        UserRead: The updated user's details.
+    """
+    updated_user = await user_service.update_image(current_user, image, session)
+    return updated_user
+
+
 @user_router.get("/{uid}", response_model=UserRead)
 async def get_current_user_by_uid(
     uid: uuid.UUID,
@@ -477,7 +521,7 @@ async def get_current_user_by_uid(
     raise InsufficientPermission()
 
 
-@user_router.patch("/{uid}", response_model=UserRead)
+@user_router.put("/{uid}", response_model=UserRead)
 async def update_user_by_uid(
     update_data: dict,
     uid: uuid.UUID,
@@ -498,57 +542,13 @@ async def update_user_by_uid(
     Returns:
         UserRead: The updated user's details.
     """
-    if user.role in (UserRole.ADMIN, UserRole.MANAGER) or user.uid == uid:
+    if user.uid == uid or user.role in (UserRole.ADMIN, UserRole.MANAGER):
         user = await user_service.update_user(user, update_data, session)
         return user
     raise InsufficientPermission()
 
 
-@user_router.get("", response_model=List[UserRead])
-async def get_users(
-    domain: str,
-    user: User = Depends(get_current_user),
-    session: AsyncSession = Depends(get_session),
-):
-    """
-    Get a list of all users in the specified domain.
-
-    Args:
-        domain (str): The domain to filter users by.
-        user (User): The currently authenticated user.
-        session (AsyncSession): Database session dependency.
-
-    Returns:
-        List[UserRead]: A list of users in the domain.
-    """
-    if user.domain != domain:
-        raise InsufficientPermission()
-    users = await user_service.get_all_users(user, domain, session)
-    return users
-
-
-@user_router.patch("/me/photo", response_model=UserRead)
-async def update_user_photo(
-    image: UploadFile,
-    current_user: User = Depends(get_current_user),
-    session: AsyncSession = Depends(get_session),
-):
-    """
-    Update the profile photo of the currently authenticated user.
-
-    Args:
-        image (UploadFile): The new profile photo.
-        current_user (User): The currently authenticated user.
-        session (AsyncSession): Database session dependency.
-
-    Returns:
-        UserRead: The updated user's details.
-    """
-    updated_user = await user_service.update_image(current_user, image, session)
-    return updated_user
-
-
-@user_router.patch("/{uid}/block", response_model=UserRead)
+@user_router.put("/{uid}/block", response_model=UserRead)
 async def block_user(
     uid: uuid.UUID,
     block: bool,
@@ -575,6 +575,7 @@ async def block_user(
 
     blocked_user = await user_service.block_user(user_to_block, block, session)
     return blocked_user
+
 
 
 # Business Routes
@@ -626,7 +627,7 @@ async def get_business(
     return business
 
 
-@business_router.patch("/{business_id}", response_model=Optional[BusinessProfileRead])
+@business_router.put("/{business_id}", response_model=Optional[BusinessProfileRead])
 async def update_existing_business(
     business_id: str,
     update_data: BusinessProfileUpdate,
@@ -653,7 +654,7 @@ async def update_existing_business(
 
 
 # Card Routes
-@card_router.patch("/{card_id}", response_model=Optional[CardRead])
+@card_router.put("/{card_id}", response_model=Optional[CardRead])
 async def update_existing_card_expiry_date(
     card_id: str,
     user: User = Depends(get_current_user),
@@ -684,7 +685,7 @@ async def update_existing_card_expiry_date(
 
 
 # Bank Account Routes
-@bank_router.patch("/{account_number}", response_model=Optional[BankAccountRead])
+@bank_router.put("/{account_number}", response_model=Optional[BankAccountRead])
 async def update_bank_account_balance(
     account_number: str,
     update_data: BankAccountUpdate,
@@ -970,7 +971,7 @@ async def update_bank_account_balance(
 #     raise InsufficientPermission()
 
 
-# @user_router.patch("/{uid}", response_model=UserRead)
+# @user_router.put("/{uid}", response_model=UserRead)
 # async def update_user_by_uid(
 #     update_data: dict,
 #     uid: uuid.UUID,
@@ -997,7 +998,7 @@ async def update_bank_account_balance(
 #     return users
 
 
-# @user_router.patch("/me/photo", response_model=UserRead)
+# @user_router.put("/me/photo", response_model=UserRead)
 # async def update_user_photo(
 #     image: UploadFile,
 #     current_user: User = Depends(get_current_user),
@@ -1007,7 +1008,7 @@ async def update_bank_account_balance(
 #     return updated_user
 
 
-# @user_router.patch("/{uid}/block", response_model=UserRead)
+# @user_router.put("/{uid}/block", response_model=UserRead)
 # async def block_user(
 #     uid: uuid.UUID,
 #     block: bool,
@@ -1054,7 +1055,7 @@ async def update_bank_account_balance(
 #     return business
 
 
-# @business_router.patch("{business_id}", response_model=Optional[BusinessProfileRead])
+# @business_router.put("{business_id}", response_model=Optional[BusinessProfileRead])
 # async def update_existing_business(
 #     business_id: str,
 #     update_data: BusinessProfileUpdate,
@@ -1070,7 +1071,7 @@ async def update_bank_account_balance(
 
 
 # # Card Routes
-# @card_router.patch("{card_id}", response_model=Optional[CardRead])
+# @card_router.put("{card_id}", response_model=Optional[CardRead])
 # async def update_existing_card_expiry_date(
 #     card_id: str,
 #     # update_data: BusinessProfileUpdate,
@@ -1088,7 +1089,7 @@ async def update_bank_account_balance(
 
 
 # # Bank Account Routes
-# @bank_router.patch("{account_number}", response_model=Optional[BankAccountRead])
+# @bank_router.put("{account_number}", response_model=Optional[BankAccountRead])
 # async def update_bank_account_balance(
 #     account_number: str,
 #     update_data: BankAccountUpdate,

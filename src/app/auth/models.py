@@ -126,13 +126,13 @@ class BusinessProfile(SQLModel, table=True):
         default=None, max_length=50
     )  # Type of business (e.g., LLC, Corporation)
     company_industry: Optional[str] = Field(
-        default=None, max_length=100
+        default=None, max_length=255
     )  # Industry or sector in which the business operates
     asset_source_description: Optional[str] = Field(
-        default=None, max_length=100
+        default=None, max_length=255
     )  # Industry or sector in which the business operates
     deposit_size: Optional[str] = Field(
-        default=None, max_length=100
+        default=None, max_length=255
     )  # Industry or sector in which the business operates
     founding_date: Optional[datetime] = Field(
         default=None

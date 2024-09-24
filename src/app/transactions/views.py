@@ -277,7 +277,7 @@ async def withdraw_from_balance(
     }
 
 
-@transaction_router.patch(
+@transaction_router.put(
     "/{uid}", status_code=status.HTTP_200_OK, response_model=TransactionRead
 )
 async def update_transaction(
