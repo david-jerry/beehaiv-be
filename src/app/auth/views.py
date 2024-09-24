@@ -233,7 +233,7 @@ async def verify_transfer_pin(
     raise UserNotFound()
 
 
-@auth_router.post("/login", status_code=status.HTTP_200_OK, response_model=LoginResponseModel)
+@auth_router.post("/login", status_code=status.HTTP_200_OK)
 async def login_users(
     login_data: UserLoginModel, session: AsyncSession = Depends(get_session)
 ):
