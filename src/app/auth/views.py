@@ -250,7 +250,7 @@ async def login_users(
     email = login_data.email
     password = login_data.password
 
-    user = await user_service.get_user_by_email(email, session)
+    user: UserRead = await user_service.get_user_by_email(email, session)
 
     if user is None:
         raise InvalidCredentials()
