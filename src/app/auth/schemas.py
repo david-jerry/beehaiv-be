@@ -87,12 +87,12 @@ class UserLoginModel(BaseModel):
     password: str = Field(min_length=8)
 
 
-# class LoginResponseModel(BaseModel):
-#     message: str
-#     access_token: Optional[str]
-#     refresh_token: Optional[str]
-#     code: Optional[str]
-#     user: UserRead
+class LoginResponseModel(BaseModel):
+    message: str
+    access_token: Optional[str]
+    refresh_token: Optional[str]
+    code: Optional[str]
+    user: UserRead
 
 
 class UserPinModel(BaseModel):
