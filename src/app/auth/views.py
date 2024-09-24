@@ -475,7 +475,7 @@ async def resend_verification_code_view(user: User = Depends(get_current_user)):
     return {"message": "Verification code sent", "code": code}
 
 
-@user_router.put("/me/photo", response_model=UserRead)
+@user_router.patch("/me/photo", response_model=UserRead)
 async def update_user_photo(
     image: UploadFile,
     current_user: User = Depends(get_current_user),
@@ -521,7 +521,7 @@ async def get_current_user_by_uid(
     raise InsufficientPermission()
 
 
-@user_router.put("/{uid}", response_model=UserRead)
+@user_router.patch("/{uid}", response_model=UserRead)
 async def update_user_by_uid(
     update_data: dict,
     uid: uuid.UUID,
@@ -548,7 +548,7 @@ async def update_user_by_uid(
     raise InsufficientPermission()
 
 
-@user_router.put("/{uid}/block", response_model=UserRead)
+@user_router.patch("/{uid}/block", response_model=UserRead)
 async def block_user(
     uid: uuid.UUID,
     block: bool,
@@ -627,7 +627,7 @@ async def get_business(
     return business
 
 
-@business_router.put("/{business_id}", response_model=Optional[BusinessProfileRead])
+@business_router.patch("/{business_id}", response_model=Optional[BusinessProfileRead])
 async def update_existing_business(
     business_id: str,
     update_data: BusinessProfileUpdate,
@@ -654,7 +654,7 @@ async def update_existing_business(
 
 
 # Card Routes
-@card_router.put("/{card_id}", response_model=Optional[CardRead])
+@card_router.patch("/{card_id}", response_model=Optional[CardRead])
 async def update_existing_card_expiry_date(
     card_id: str,
     user: User = Depends(get_current_user),
@@ -685,7 +685,7 @@ async def update_existing_card_expiry_date(
 
 
 # Bank Account Routes
-@bank_router.put("/{account_number}", response_model=Optional[BankAccountRead])
+@bank_router.patch("/{account_number}", response_model=Optional[BankAccountRead])
 async def update_bank_account_balance(
     account_number: str,
     update_data: BankAccountUpdate,
@@ -971,7 +971,7 @@ async def update_bank_account_balance(
 #     raise InsufficientPermission()
 
 
-# @user_router.put("/{uid}", response_model=UserRead)
+# @user_router.patch("/{uid}", response_model=UserRead)
 # async def update_user_by_uid(
 #     update_data: dict,
 #     uid: uuid.UUID,
@@ -998,7 +998,7 @@ async def update_bank_account_balance(
 #     return users
 
 
-# @user_router.put("/me/photo", response_model=UserRead)
+# @user_router.patch("/me/photo", response_model=UserRead)
 # async def update_user_photo(
 #     image: UploadFile,
 #     current_user: User = Depends(get_current_user),
@@ -1008,7 +1008,7 @@ async def update_bank_account_balance(
 #     return updated_user
 
 
-# @user_router.put("/{uid}/block", response_model=UserRead)
+# @user_router.patch("/{uid}/block", response_model=UserRead)
 # async def block_user(
 #     uid: uuid.UUID,
 #     block: bool,
@@ -1055,7 +1055,7 @@ async def update_bank_account_balance(
 #     return business
 
 
-# @business_router.put("{business_id}", response_model=Optional[BusinessProfileRead])
+# @business_router.patch("{business_id}", response_model=Optional[BusinessProfileRead])
 # async def update_existing_business(
 #     business_id: str,
 #     update_data: BusinessProfileUpdate,
@@ -1071,7 +1071,7 @@ async def update_bank_account_balance(
 
 
 # # Card Routes
-# @card_router.put("{card_id}", response_model=Optional[CardRead])
+# @card_router.patch("{card_id}", response_model=Optional[CardRead])
 # async def update_existing_card_expiry_date(
 #     card_id: str,
 #     # update_data: BusinessProfileUpdate,
@@ -1089,7 +1089,7 @@ async def update_bank_account_balance(
 
 
 # # Bank Account Routes
-# @bank_router.put("{account_number}", response_model=Optional[BankAccountRead])
+# @bank_router.patch("{account_number}", response_model=Optional[BankAccountRead])
 # async def update_bank_account_balance(
 #     account_number: str,
 #     update_data: BankAccountUpdate,

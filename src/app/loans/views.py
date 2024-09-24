@@ -50,7 +50,7 @@ async def create_loan_record(
     return {"message": "Loan Created!", "loan": loan}
 
 
-@loan_router.put("/{uid}", status_code=status.HTTP_200_OK, response_model=LoanRead)
+@loan_router.patch("/{uid}", status_code=status.HTTP_200_OK, response_model=LoanRead)
 async def update_loan_record(
     loan_data: LoanUpdate,
     uid: uuid.UUID,
