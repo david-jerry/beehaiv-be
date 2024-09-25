@@ -625,9 +625,8 @@ async def create_new_business(
     Returns:
         BusinessProfileRead: The newly created business profile.
     """
-    business_user = user
     business = await business_service.create_business(
-        business_user, business_data, session
+        user, business_data, session
     )
     return business
 
