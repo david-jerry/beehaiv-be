@@ -19,6 +19,7 @@ from src.utils.logger import LOGGER
 from .models import BankAccount, Card, User, BusinessProfile, UserRole, VerifiedEmail
 
 from .schemas import (
+    BankAccountRead,
     UserCreate,
     BusinessProfileCreate,
     BusinessProfileUpdate,
@@ -230,9 +231,10 @@ class BusinessService:
         bank_account = await self.create_bank_account(new_business, session)
         new_business.bank_account = bank_account
         await session.commit()
+        await session.refresh(new_business)
 
         # Create and link a Card
-        card = await self.create_card(new_business, session)
+        card = await self.create_card(new_business, bank_account, session)
         new_business.card = card
         await session.commit()
         await session.refresh(new_business)
@@ -240,7 +242,7 @@ class BusinessService:
         return new_business
 
     async def create_card(
-        self, business_profile: BusinessProfile, session: AsyncSession
+        self, business_profile: BusinessProfile, bank_account: BankAccountRead, session: AsyncSession
     ) -> Card:
         card_number = self.generate_debit_card_number()
         expiration_date = datetime.utcnow() + timedelta(
@@ -255,10 +257,10 @@ class BusinessService:
             card_name=f"{business_profile.user.first_name} {business_profile.user.last_name}",
             cvv=cvv,
             pin=pin,
-            business_id=business_profile.uid,
+            business_id=business_profile.business_id,
             business_profile=business_profile,
-            bank_id=business_profile.bank_account.uid,
-            bank_account=business_profile.bank_account,
+            bank_id=bank_account.uid,
+            bank_account=bank_account,
         )
 
         session.add(card)
