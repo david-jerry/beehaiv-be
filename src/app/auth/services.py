@@ -216,10 +216,12 @@ class BusinessService:
         new_business = BusinessProfile(**business_data_dict)
         session.add(new_business)
         await session.commit()
+        await session.refresh(new_business)
 
         # Create and link a user
         new_business.user_id = user.uid
         new_business.user = user
+        new_business.business_id = new_business.tax_id
         await session.commit()
         await session.refresh(new_business)
 
@@ -257,7 +259,7 @@ class BusinessService:
             card_name=f"{business_profile.user.first_name} {business_profile.user.last_name}",
             cvv=cvv,
             pin=pin,
-            business_id=business_profile.business_id,
+            business_id=business_profile.uid,
             business_profile=business_profile,
             bank_id=bank_account.uid,
             bank_account=bank_account,

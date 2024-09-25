@@ -181,10 +181,7 @@ class VerifiedEmailRead(VerifiedEmailBase):
 
 
 class BusinessProfileBase(BaseModel):
-    business_id: Optional[str] = None
     business_name: Optional[str] = None
-    phone_number: Optional[str] = None
-    email: Optional[EmailStr] = None
     website: Optional[str] = None
     registration_number: Optional[str] = None
     tax_id: Optional[str] = None
