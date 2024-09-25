@@ -115,13 +115,13 @@ class BusinessProfile(SQLModel, table=True):
     business_id: Optional[str] = Field(
         nullable=True, unique=True, index=True, max_length=50
     )  # Unique business identifier
-    business_name: Optional[str] = Field(nullable=True, max_length=255)
+    business_name: Optional[str] = Field(nullable=True, unique=True, max_length=255)
     deposit_size: Optional[str] = Field(nullable=True, max_length=255)
-    website: Optional[str] = Field(default=None, max_length=255)  # Business website URL
+    website: Optional[str] = Field(default=None, unique=True, max_length=255)  # Business website URL
     registration_number: Optional[str] = Field(
         default=None, max_length=100
     )  # Business registration number
-    tax_id: Optional[str] = Field(default=None, max_length=100)  # Tax ID or VAT number
+    tax_id: Optional[str] = Field(default=None, unique=True, max_length=100)  # Tax ID or VAT number
     business_type: Optional[str] = Field(
         default=None, max_length=50
     )  # Type of business (e.g., LLC, Corporation)

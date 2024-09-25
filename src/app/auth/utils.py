@@ -36,6 +36,7 @@ def generate_transfer_pin(pin: str) -> str:
 async def send_verification_code(user: User, domain: str):
     verification_data = await get_verification_status(user.uid)
     if not verification_data or verification_data.get("verified") == "true":
+        LOGGER.info(f"User Email: {user.email}")
         # No code exists or already verified; generate a new one
         code = generate_verification_code(user.email)
         await store_verification_code(user.uid, code)

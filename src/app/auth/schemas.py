@@ -182,6 +182,7 @@ class VerifiedEmailRead(VerifiedEmailBase):
 
 class BusinessProfileBase(BaseModel):
     business_name: Optional[str] = None
+    business_id: str = None
     website: Optional[str] = None
     registration_number: Optional[str] = None
     tax_id: Optional[str] = None
