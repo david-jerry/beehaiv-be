@@ -216,6 +216,7 @@ class BusinessService:
         business_id = business_data.business_id
 
         business = await self.get_business_by_id(business_id, session)
+        LOGGER.info(business)
         new_business = business
 
         if not business:
