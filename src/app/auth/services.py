@@ -320,7 +320,6 @@ class BusinessService:
             .where(BusinessProfile.business_id == business_id)
             .options(
                 selectinload(BusinessProfile.bank_account),
-                selectinload(BusinessProfile.card),
             )
         )
         result = await session.exec(selection)

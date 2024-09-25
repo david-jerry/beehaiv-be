@@ -297,7 +297,7 @@ Please check your email, a new verification code has been sent to you
             joined=user.joined,
             role=user.role,
             updated_at=user.updated_at,
-            business_profiles=[], #user.business_profiles,
+            business_profiles=user.business_profiles,
             transactions=user.transactions,
             loans=user.loans,
             verified_emails=user.verified_emails,
