@@ -248,12 +248,12 @@ class BusinessService:
             LOGGER.info(f"New card created: {card}")
 
             # Update the relationships and commit the changes
-            new_business.bank_account = bank_account
-            bank_account.card = card
+            # new_business.bank_account = bank_account
+            # bank_account.card = card
 
-            await session.commit()
-            await session.refresh(new_business)
-            await session.refresh(bank_account)
+            # await session.commit()
+            # await session.refresh(new_business)
+            # await session.refresh(bank_account)
 
             return new_business
 
@@ -283,6 +283,10 @@ class BusinessService:
         await session.commit()
 
         # await send_card_pin(card=card, user=business_profile.user)
+        bank_account.card = card
+        await session.commit()
+        await session.refresh(bank_account)
+
 
         return card
 
@@ -309,6 +313,10 @@ class BusinessService:
 
         session.add(bank_account)
         await session.commit()
+
+        business_profile.bank_account = bank_account
+        await session.commit()
+        await session.refresh(business_profile)
 
         # await send_new_bank_account_details(
         #     bank=bank_account, user=business_profile.user
