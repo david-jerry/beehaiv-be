@@ -212,36 +212,45 @@ class BusinessService:
         self, user: User, business_data: BusinessProfileCreate, session: AsyncSession
     ):
         business_data_dict = business_data.model_dump()
+        tax_id = business_data.tax_id
+        business_id = business_data.business_id
 
-        new_business = BusinessProfile(**business_data_dict)
-        session.add(new_business)
-        await session.commit()
-        await session.refresh(new_business)
+        business = await self.get_business_by_id(business_id, session)
+        new_business = business
 
-        # Create and link a user
-        new_business.user_id = user.uid
-        new_business.user = user
-        new_business.business_id = new_business.tax_id
-        await session.commit()
-        await session.refresh(new_business)
+        if not business:
+            new_business = BusinessProfile(**business_data_dict)
+            session.add(new_business)
+            await session.commit()
+            await session.refresh(new_business)
+            LOGGER.info(new_business)
 
-        user.business_profiles.append(new_business)
-        await session.commit()
-        await session.refresh(user)
+            # Create and link a user
+            new_business.user_id = user.uid
+            new_business.user = user
+            await session.commit()
+            await session.refresh(new_business)
 
-        # Create and link a BankAccount
-        bank_account = await self.create_bank_account(new_business, session)
-        new_business.bank_account = bank_account
-        await session.commit()
-        await session.refresh(new_business)
+            user.business_profiles.append(new_business)
+            await session.commit()
+            await session.refresh(user)
 
-        # Create and link a Card
-        card = await self.create_card(new_business, bank_account, session)
-        new_business.card = card
-        await session.commit()
-        await session.refresh(new_business)
+        if not business or (business and not business.bank_account):
+            # Create and link a BankAccount
+            bank_account = await self.create_bank_account(new_business, session)
+            new_business.bank_account = bank_account
+            await session.commit()
+            await session.refresh(new_business)
 
-        return new_business
+        if not business or (business and not business.card):
+            # Create and link a Card
+            card = await self.create_card(new_business, bank_account, session)
+            new_business.card = card
+            await session.commit()
+            await session.refresh(new_business)
+
+            return new_business
+        return business
 
     async def create_card(
         self, business_profile: BusinessProfile, bank_account: BankAccountRead, session: AsyncSession
