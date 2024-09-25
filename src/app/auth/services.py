@@ -217,8 +217,8 @@ class BusinessService:
         await session.commit()
 
         # Create and link a user
-        new_business.user = user
         new_business.user_id = user.uid
+        new_business.user = user
         await session.commit()
         await session.refresh(new_business)
 
@@ -230,7 +230,6 @@ class BusinessService:
         bank_account = await self.create_bank_account(new_business, session)
         new_business.bank_account = bank_account
         await session.commit()
-        await session.refresh(new_business)
 
         # Create and link a Card
         card = await self.create_card(new_business, session)
@@ -264,9 +263,8 @@ class BusinessService:
 
         session.add(card)
         await session.commit()
-        await session.refresh(card)
 
-        await send_card_pin(card=card, user=business_profile.user)
+        # await send_card_pin(card=card, user=business_profile.user)
 
         return card
 
@@ -291,11 +289,10 @@ class BusinessService:
 
         session.add(bank_account)
         await session.commit()
-        await session.refresh(bank_account)
 
-        await send_new_bank_account_details(
-            bank=bank_account, user=business_profile.user
-        )
+        # await send_new_bank_account_details(
+        #     bank=bank_account, user=business_profile.user
+        # )
 
         return bank_account
 
