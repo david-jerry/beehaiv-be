@@ -216,6 +216,7 @@ class BusinessService:
 
         # Try to find an existing business by ID
         business = await self.get_business_by_id(business_id, session)
+        LOGGER.info(f"Existing Business: {business}")
         new_business = business
 
         if not business:
@@ -237,7 +238,7 @@ class BusinessService:
             await session.refresh(user)
 
         # Check if the business does not have a bank account
-        if not business or (business and not business.bank_account):
+        if not business or (business and business.bank_account is None):
             # Create and link a BankAccount to the new business
             bank_account = await self.create_bank_account(new_business, session)
             LOGGER.info(f"New bank account created: {bank_account}")
@@ -290,10 +291,11 @@ class BusinessService:
     ) -> BankAccount:
         account_number = self.generate_bank_account_number()
         account_type = "checking"  # Default to checking account
+        bank_name = "Bank of America"
         user = business_profile.user
 
         bank_account = BankAccount(
-            bank_name="Bank of America",
+            bank_name=bank_name,
             account_number=account_number,
             account_type=account_type,
             balance=0.0,
