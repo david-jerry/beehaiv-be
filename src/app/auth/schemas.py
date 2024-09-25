@@ -269,7 +269,7 @@ class BankAccountRead(BaseModel):
     business_id: uuid.UUID
     user_id: uuid.UUID
     card_id: uuid.UUID
-    card: Optional[CardRead] = None
+    # card: Optional[CardRead] = None
 
     class Config:
         from_attributes = True
