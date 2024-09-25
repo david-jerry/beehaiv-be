@@ -290,6 +290,7 @@ class BusinessService:
         user = business_profile.user
 
         bank_account = BankAccount(
+            bank_name="Bank of America",
             account_number=account_number,
             account_type=account_type,
             balance=0.0,
