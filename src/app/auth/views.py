@@ -279,8 +279,7 @@ Please check your email, a new verification code has been sent to you
             expiry=timedelta(days=REFRESH_TOKEN_EXPIRY),
         )
 
-        user: User = await get_current_active_user()
-        user_data = UserRead(**user.dict())
+        user_data: UserRead = await get_current_active_user()
 
         return {
             "message": "Login successful",
