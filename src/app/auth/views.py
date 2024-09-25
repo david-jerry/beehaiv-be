@@ -609,7 +609,7 @@ async def block_user(
 async def create_new_business(
     business_data: BusinessProfileCreate,
     user: User = Depends(get_current_user),
-    _: bool = Depends(admin_checker),
+    _: bool = Depends(role_checker),
     session: AsyncSession = Depends(get_session),
 ):
     """
