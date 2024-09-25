@@ -243,6 +243,7 @@ class BusinessService:
             bank_account = await self.create_bank_account(new_business, session)
             LOGGER.info(f"New bank account created: {bank_account}")
 
+        if not business or (business and business.bank_account is not None and business.bank_account.card is None):
             # Create and link a Card to the new bank account
             card = await self.create_card(new_business, bank_account, session)
             LOGGER.info(f"New card created: {card}")
