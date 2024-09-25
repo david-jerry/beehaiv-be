@@ -216,26 +216,27 @@ class BusinessService:
         session.add(new_business)
         await session.commit()
 
-        # Create and link a Card
-        card = await self.create_card(new_business, session)
-        new_business.card = card
-        await session.commit()
-
-        # Create and link a BankAccount
-        bank_account = await self.create_bank_account(new_business, session)
-        new_business.bank_account = bank_account
-        await session.commit()
-
         # Create and link a user
         new_business.user = user
         new_business.user_id = user.uid
         await session.commit()
-
         await session.refresh(new_business)
 
         user.business_profiles.append(new_business)
         await session.commit()
         await session.refresh(user)
+
+        # Create and link a Card
+        card = await self.create_card(new_business, session)
+        new_business.card = card
+        await session.commit()
+        await session.refresh(new_business)
+
+        # Create and link a BankAccount
+        bank_account = await self.create_bank_account(new_business, session)
+        new_business.bank_account = bank_account
+        await session.commit()
+        await session.refresh(new_business)
 
         return new_business
 
