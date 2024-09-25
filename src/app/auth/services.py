@@ -278,9 +278,9 @@ class BusinessService:
         await session.commit()
 
         # await send_card_pin(card=card, user=business_profile.user)
-        bank_account.card = card
+        business_profile.bank_account.card = card
         await session.commit()
-        await session.refresh(bank_account)
+        await session.refresh(business_profile.bank_account)
         await session.refresh(business_profile)
 
         return card
@@ -304,6 +304,7 @@ class BusinessService:
             user_id=user.uid,
             routing_number="026009593",
             sort_code="165050",
+            card=None,
         )
 
         session.add(bank_account)
