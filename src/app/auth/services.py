@@ -150,7 +150,7 @@ class UserService:
         )
 
         if existing_email:
-            return user, True
+            return True
 
         # If not verified, proceed to save the new verified email
         new_email = VerifiedEmail(email=email_data)
