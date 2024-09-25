@@ -154,9 +154,6 @@ class BusinessProfile(SQLModel, table=True):
     user_id: Optional[uuid.UUID] = Field(default=None, foreign_key="users.uid")
     user: Optional[User] = Relationship(back_populates="business_profiles")
 
-    # Relationship to Card
-    card: Optional["Card"] = Relationship(back_populates="business_profile")
-
     # Relationship to BankAccount
     bank_account: Optional["BankAccount"] = Relationship(
         back_populates="business_profile"
@@ -195,7 +192,7 @@ class BankAccount(SQLModel, table=True):
     user_id: Optional[uuid.UUID] = Field(default=None, foreign_key="users.uid")
     user: Optional[User] = Relationship(back_populates="bank_accounts")
 
-    card_id: Optional[uuid.UUID] = Field(default=None, foreign_key="cards.uid")
+    card: Optional["Card"] = Relationship(back_populates="bank_account", sa_relationship_kwargs={"uselist": False, "cascade": "all, delete-orphan"})
 
     def __repr__(self) -> str:
         return f"<BankAccount {self.account_number}>"
@@ -217,13 +214,7 @@ class Card(SQLModel, table=True):
 
     pin: str = Field(nullable=False, max_length=4)
 
-    # Foreign Key to BusinessProfile
-    business_id: Optional[uuid.UUID] = Field(
-        default=None, foreign_key="business_profiles.uid"
-    )
-    business_profile: Optional["BusinessProfile"] = Relationship(back_populates="card")
-
-    bank_id: Optional[uuid.UUID] = Field(default=None, foreign_key="bank_accounts.uid")
+    bank_id: uuid.UUID = Field(default=None, foreign_key="bank_accounts.uid")
     bank_account: Optional[BankAccount] = Relationship(back_populates="card")
 
     def __repr__(self) -> str:

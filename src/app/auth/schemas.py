@@ -268,8 +268,8 @@ class BankAccountRead(BaseModel):
     balance: float
     business_id: uuid.UUID
     user_id: uuid.UUID
-    card_id: uuid.UUID
-    # card: Optional[CardRead] = None
+    # card_id: uuid.UUID
+    card: Optional[CardRead] = None
 
     class Config:
         from_attributes = True

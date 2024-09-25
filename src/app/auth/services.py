@@ -210,47 +210,52 @@ class UserService:
 class BusinessService:
     async def create_business(
         self, user: User, business_data: BusinessProfileCreate, session: AsyncSession
-    ):
+    ) -> BusinessProfile:
         business_data_dict = business_data.model_dump()
-        tax_id = business_data.tax_id
         business_id = business_data.business_id
 
+        # Try to find an existing business by ID
         business = await self.get_business_by_id(business_id, session)
-        LOGGER.info(business)
         new_business = business
 
         if not business:
+            # If business doesn't exist, create a new one
             new_business = BusinessProfile(**business_data_dict)
+            new_business.user_id = user.uid  # Link the business to the user
+            new_business.user = user
+
+            # Save new business to the session
             session.add(new_business)
             await session.commit()
             await session.refresh(new_business)
-            LOGGER.info(new_business)
 
-            # Create and link a user
-            new_business.user_id = user.uid
-            new_business.user = user
-            await session.commit()
-            await session.refresh(new_business)
+            LOGGER.info(f"New business created: {new_business}")
 
+            # Link the new business profile to the user's business profiles
             user.business_profiles.append(new_business)
             await session.commit()
             await session.refresh(user)
 
+        # Check if the business does not have a bank account
         if not business or (business and not business.bank_account):
-            # Create and link a BankAccount
+            # Create and link a BankAccount to the new business
             bank_account = await self.create_bank_account(new_business, session)
+            LOGGER.info(f"New bank account created: {bank_account}")
+
+            # Create and link a Card to the new bank account
             card = await self.create_card(new_business, bank_account, session)
+            LOGGER.info(f"New card created: {card}")
+
+            # Update the relationships and commit the changes
             new_business.bank_account = bank_account
-            new_business.card = card
+            bank_account.card = card
+
             await session.commit()
             await session.refresh(new_business)
-
-            # Create and link a Card
-            bank_account.card_id = card.uid
-            await session.commit()
             await session.refresh(bank_account)
 
             return new_business
+
         return business
 
     async def create_card(
@@ -269,10 +274,8 @@ class BusinessService:
             card_name=f"{business_profile.user.first_name} {business_profile.user.last_name}",
             cvv=cvv,
             pin=pin,
-            business_id=business_profile.uid,
-            business_profile=business_profile,
-            bank_id=bank_account.uid,
             bank_account=bank_account,
+            bank_id=bank_account.uid,
         )
 
         session.add(card)
@@ -298,7 +301,6 @@ class BusinessService:
             business_profile=business_profile,
             user=user,
             user_id=user.uid,
-            card_id=None,
             routing_number="026009593",
             sort_code="165050",
         )
