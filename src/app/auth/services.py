@@ -344,7 +344,6 @@ class BusinessService:
             select(Card)
             .where(Card.uid == card_id)
             .options(
-                selectinload(Card.business_profile),
                 selectinload(Card.bank_account),
             )
         )
