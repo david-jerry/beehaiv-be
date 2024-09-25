@@ -247,7 +247,7 @@ class BusinessService:
         if not business or (business and business.bank_account is not None):
             LOGGER.info(f"Creating Bank Card: {new_business.bank_account.uid}")
             # Create and link a Card to the new bank account
-            card = await self.create_card(new_business, bank_account, session)
+            card = await self.create_card(new_business, session)
             LOGGER.info(f"New card created: {card}")
 
             return new_business
@@ -255,7 +255,7 @@ class BusinessService:
         return business
 
     async def create_card(
-        self, business_profile: BusinessProfile, bank_account: BankAccount, session: AsyncSession
+        self, business_profile: BusinessProfile, session: AsyncSession
     ) -> Card:
         card_number = self.generate_debit_card_number()
         expiration_date = datetime.utcnow() + timedelta(
@@ -270,8 +270,8 @@ class BusinessService:
             expiration_date=expiration_date,
             cvv=cvv,
             pin=pin,
-            bank_id=bank_account.uid,
-            bank_account=bank_account,
+            bank_id=business_profile.bank_account.uid,
+            bank_account=business_profile.bank_account,
         )
 
         session.add(card)
@@ -312,10 +312,6 @@ class BusinessService:
         business_profile.bank_account = bank_account
         await session.commit()
         await session.refresh(business_profile)
-
-        # await send_new_bank_account_details(
-        #     bank=bank_account, user=business_profile.user
-        # )
 
         return bank_account
 
