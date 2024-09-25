@@ -218,7 +218,6 @@ class BusinessService:
         business = await self.get_business_by_id(business_id, session)
         LOGGER.info(f"Existing Business: {business}")
         LOGGER.info(f"Existing Business Bank: {business.bank_account}")
-        LOGGER.info(f"Existing Business Bank Card: {business.bank_account.card}")
         new_business = business
 
         if not business:
@@ -245,7 +244,8 @@ class BusinessService:
             bank_account = await self.create_bank_account(new_business, session)
             LOGGER.info(f"New bank account created: {bank_account}")
 
-        if not business or (business and business.bank_account is not None and business.bank_account.card is None):
+        if not business or (business and business.bank_account is not None and not business.bank_account.card):
+            LOGGER.info(f"Creating Bank Card: {new_business.bank_account.uid}")
             # Create and link a Card to the new bank account
             card = await self.create_card(new_business, bank_account, session)
             LOGGER.info(f"New card created: {card}")
