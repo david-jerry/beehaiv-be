@@ -186,11 +186,11 @@ async def verify_user_account(token: str, session: AsyncSession = Depends(get_se
         )
 
         return {
-                "message": "Account verified successfully. Login with your credentials",
-                "status": status.HTTP_200_OK,
-                "user": user,
-                "verified_already": verified,
-            }
+            "message": "Account verified successfully. Login with your credentials",
+            "status": status.HTTP_200_OK,
+            "user": user,
+            "verified_already": verified,
+        }
 
     return JSONResponse(
         content={"message": "Error occurred during verification"},
@@ -309,7 +309,6 @@ Please check your email, a new verification code has been sent to you
             "refresh_token": refresh_token,
             "user": user_data,
         }
-
 
 
 @auth_router.get("/refresh-token", status_code=status.HTTP_200_OK)
@@ -602,9 +601,10 @@ async def block_user(
     return blocked_user
 
 
-
 # Business Routes
-@business_router.post("", status_code=status.HTTP_201_CREATED, response_model=BusinessProfileRead)
+@business_router.post(
+    "", status_code=status.HTTP_201_CREATED, response_model=BusinessProfileRead
+)
 async def create_new_business(
     business_data: BusinessProfileCreate,
     user: User = Depends(get_current_user),
@@ -624,9 +624,7 @@ async def create_new_business(
     Returns:
         BusinessProfileRead: The newly created business profile.
     """
-    business = await business_service.create_business(
-        user, business_data, session
-    )
+    business = await business_service.create_business(user, business_data, session)
     return business
 
 

@@ -10,7 +10,7 @@ from sqlmodel import select
 from sqlmodel.ext.asyncio.session import AsyncSession
 from sqlalchemy.orm import selectinload
 
-from src.app.auth.mails import send_card_pin, send_new_bank_account_details
+# from src.app.auth.mails import send_card_pin, send_new_bank_account_details
 from src.db.cloudinary import upload_image
 from src.db.redis import store_allowed_ip
 from src.errors import BankAccountNotFound, InsufficientPermission
@@ -19,7 +19,6 @@ from src.utils.logger import LOGGER
 from .models import BankAccount, Card, User, BusinessProfile, UserRole, VerifiedEmail
 
 from .schemas import (
-    BankAccountRead,
     UserCreate,
     BusinessProfileCreate,
     BusinessProfileUpdate,
@@ -126,9 +125,7 @@ class UserService:
         new_user.ip_address = ip_address
         new_user.password_hash = generate_passwd_hash(user_data_dict["password"])
         new_user.role = role_enum  # Set the role using the UserRole enum
-        new_user.transfer_pin_hash = generate_passwd_hash(
-            str(1234)
-        )
+        new_user.transfer_pin_hash = generate_passwd_hash(str(1234))
 
         # Add and commit the new user to the session
         session.add(new_user)
@@ -216,8 +213,10 @@ class BusinessService:
 
         # Try to find an existing business by ID
         business = await self.get_business_by_id(business_id, session)
-        LOGGER.info(f"Existing Business: {business}")
-        LOGGER.info(f"Existing Business Bank: {business.bank_account}")
+        if business:
+            LOGGER.info(f"Existing Business: {business}")
+            if business.bank_account is not None:
+                LOGGER.info(f"Existing Business Bank: {business.bank_account}")
         new_business = business
 
         if not business:
@@ -244,7 +243,11 @@ class BusinessService:
             bank_account = await self.create_bank_account(new_business, session)
             LOGGER.info(f"New bank account created: {bank_account}")
 
-        if not business or (business and business.bank_account is not None and business.bank_account.card is None):
+        if not business or (
+            business
+            and business.bank_account is not None
+            and business.bank_account.card is None
+        ):
             LOGGER.info(f"Creating Bank Card: {new_business.bank_account.uid}")
             # Create and link a Card to the new bank account
             card = await self.create_card(new_business, session)
