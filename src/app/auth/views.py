@@ -181,7 +181,7 @@ async def verify_user_account(token: str, session: AsyncSession = Depends(get_se
         if not user:
             raise UserNotFound()
 
-        user, verified = await user_service.save_verified_email(
+        verified = await user_service.save_verified_email(
             user=user, email_data=user_email, session=session
         )
 

@@ -163,7 +163,7 @@ class UserService:
         user.verified_emails.append(new_email)
         await session.commit()
         await session.refresh(user)
-        return user, False
+        return False
 
     async def update_user(self, user: User, user_data: dict, session: AsyncSession):
         if user_data.get("transfer_pin"):
