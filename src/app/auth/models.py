@@ -195,6 +195,7 @@ class BankAccount(SQLModel, table=True):
     user_id: Optional[uuid.UUID] = Field(default=None, foreign_key="users.uid")
     user: Optional[User] = Relationship(back_populates="bank_accounts")
 
+    card_id: Optional[uuid.UUID] = Field(default=None, foreign_key="cards.uid")
     card: Optional["Card"] = Relationship(back_populates="bank_account")
 
     def __repr__(self) -> str:

@@ -250,6 +250,11 @@ class BusinessService:
             await session.commit()
             await session.refresh(new_business)
 
+            new_business.bank_account.card_id = card.uid
+            new_business.bank_account.card = card
+            await session.commit()
+            await session.refresh(new_business.bank_account)
+
             return new_business
         return business
 
@@ -298,6 +303,7 @@ class BusinessService:
             business_profile=business_profile,
             user=user,
             user_id=user.uid,
+            card_id=None,
             card=None,
             routing_number="026009593",
             sort_code="165050",
