@@ -243,9 +243,9 @@ class BusinessService:
             await session.commit()
             await session.refresh(new_business)
 
-        if not business or (business and not business.card):
+        if not business or (business and not business.card and business.bank_account):
             # Create and link a Card
-            card = await self.create_card(new_business, bank_account, session)
+            card = await self.create_card(new_business, new_business.bank_account, session)
             new_business.card = card
             await session.commit()
             await session.refresh(new_business)
@@ -298,6 +298,7 @@ class BusinessService:
             business_profile=business_profile,
             user=user,
             user_id=user.uid,
+            card=None,
             routing_number="026009593",
             sort_code="165050",
         )
