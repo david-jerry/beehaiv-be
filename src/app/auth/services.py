@@ -259,7 +259,7 @@ class BusinessService:
         return business
 
     async def create_card(
-        self, business_profile: BusinessProfile, bank_account: BankAccountRead, session: AsyncSession
+        self, business_profile: BusinessProfile, bank_account: BankAccount, session: AsyncSession
     ) -> Card:
         card_number = self.generate_debit_card_number()
         expiration_date = datetime.utcnow() + timedelta(
