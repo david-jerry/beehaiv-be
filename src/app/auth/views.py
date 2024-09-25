@@ -174,6 +174,7 @@ async def verify_user_account(token: str, session: AsyncSession = Depends(get_se
     """
     token_data = decode_url_safe_token(token)
     user_email = token_data.get("email")
+    LOGGER.info(user_email)
 
     if user_email:
         user = await user_service.get_user_by_email(user_email, session)
