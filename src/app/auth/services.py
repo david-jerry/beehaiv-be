@@ -249,14 +249,6 @@ class BusinessService:
             card = await self.create_card(new_business, bank_account, session)
             LOGGER.info(f"New card created: {card}")
 
-            # Update the relationships and commit the changes
-            # new_business.bank_account = bank_account
-            # bank_account.card = card
-
-            # await session.commit()
-            # await session.refresh(new_business)
-            # await session.refresh(bank_account)
-
             return new_business
 
         return business
@@ -273,12 +265,12 @@ class BusinessService:
 
         card = Card(
             card_number=card_number,
-            expiration_date=expiration_date,
             card_name=f"{business_profile.user.first_name} {business_profile.user.last_name}",
+            expiration_date=expiration_date,
             cvv=cvv,
             pin=pin,
-            bank_account=bank_account,
             bank_id=bank_account.uid,
+            bank_account=bank_account,
         )
 
         session.add(card)
@@ -288,7 +280,7 @@ class BusinessService:
         bank_account.card = card
         await session.commit()
         await session.refresh(bank_account)
-
+        await session.refresh(business_profile)
 
         return card
 
