@@ -218,6 +218,7 @@ class BusinessService:
         business = await self.get_business_by_id(business_id, session)
         LOGGER.info(f"Existing Business: {business}")
         LOGGER.info(f"Existing Business Bank: {business.bank_account}")
+        LOGGER.info(f"Existing Business Bank Card: {business.bank_account.card}")
         new_business = business
 
         if not business:
