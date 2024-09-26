@@ -282,6 +282,7 @@ Please check your email, a new verification code has been sent to you
         )
 
         user_dict = user.model_dump()
+        LOGGER.info(user_dict)
         user_data = UserRead(**user_dict)
 
         return {
