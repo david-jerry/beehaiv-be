@@ -278,7 +278,7 @@ Please check your email, a new verification code has been sent to you
             expiry=timedelta(days=REFRESH_TOKEN_EXPIRY),
         )
 
-        LOGGER.debug(user)
+        LOGGER.debug(user.business_profiles)
 
         user_data: UserRead = UserRead(
             uid=user.uid,
