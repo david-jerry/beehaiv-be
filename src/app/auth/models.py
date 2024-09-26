@@ -160,7 +160,7 @@ class BusinessProfile(SQLModel, table=True):
 
     # Relationship to BankAccount
     bank_account: Optional["BankAccount"] = Relationship(
-        back_populates="business_profile"
+        back_populates="business_profile", sa_relationship_kwargs={'lazy': 'selectin'}
     )
 
     def __repr__(self) -> str:
@@ -197,8 +197,7 @@ class BankAccount(SQLModel, table=True):
     user: Optional[User] = Relationship(back_populates="bank_accounts")
 
     card: Optional["Card"] = Relationship(
-        back_populates="bank_account",
-        sa_relationship_kwargs={"uselist": False, "cascade": "all, delete-orphan"},
+        back_populates="bank_account", sa_relationship_kwargs={'lazy': 'selectin'}
     )
 
     def __repr__(self) -> str:
