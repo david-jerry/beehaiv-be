@@ -4,13 +4,11 @@ from sqlmodel import Relationship, SQLModel, Field
 import sqlalchemy.dialects.postgresql as pg
 from typing import Optional, TYPE_CHECKING
 from datetime import datetime
-from enum import Enum
 
 if TYPE_CHECKING:
     from src.app.auth.models import User
 from .schemas import TransactionStatus, TransactionType
 
-# Enum for transaction type
 
 # TransactionHistory model
 class TransactionHistory(SQLModel, table=True):

@@ -270,6 +270,3 @@ class BankAccountRead(BaseModel):
     user_id: uuid.UUID
     # card_id: uuid.UUID
     card: Optional[CardRead] = None
-
-    class Config:
-        from_attributes = True

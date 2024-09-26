@@ -117,11 +117,15 @@ class BusinessProfile(SQLModel, table=True):
     )  # Unique business identifier
     business_name: Optional[str] = Field(nullable=True, unique=True, max_length=255)
     deposit_size: Optional[str] = Field(nullable=True, max_length=255)
-    website: Optional[str] = Field(default=None, unique=True, max_length=255)  # Business website URL
+    website: Optional[str] = Field(
+        default=None, unique=True, max_length=255
+    )  # Business website URL
     registration_number: Optional[str] = Field(
         default=None, max_length=100
     )  # Business registration number
-    tax_id: Optional[str] = Field(default=None, unique=True, max_length=100)  # Tax ID or VAT number
+    tax_id: Optional[str] = Field(
+        default=None, unique=True, max_length=100
+    )  # Tax ID or VAT number
     business_type: Optional[str] = Field(
         default=None, max_length=50
     )  # Type of business (e.g., LLC, Corporation)
@@ -192,7 +196,10 @@ class BankAccount(SQLModel, table=True):
     user_id: Optional[uuid.UUID] = Field(default=None, foreign_key="users.uid")
     user: Optional[User] = Relationship(back_populates="bank_accounts")
 
-    card: Optional["Card"] = Relationship(back_populates="bank_account", sa_relationship_kwargs={"uselist": False, "cascade": "all, delete-orphan"})
+    card: Optional["Card"] = Relationship(
+        back_populates="bank_account",
+        sa_relationship_kwargs={"uselist": False, "cascade": "all, delete-orphan"},
+    )
 
     def __repr__(self) -> str:
         return f"<BankAccount {self.account_number}>"
