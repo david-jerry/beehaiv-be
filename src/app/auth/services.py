@@ -246,10 +246,10 @@ class BusinessService:
             sort_code="165050",
         )
 
-        bank_account.business_id = business_profile.uid,
-        bank_account.business_profile = business_profile,
-        bank_account.user = user,
-        bank_account.user_id = user.uid,
+        bank_account.business_id = business_profile.uid
+        bank_account.business_profile = business_profile
+        bank_account.user = user
+        bank_account.user_id = user.uid
 
         session.add(bank_account)
         await session.commit()
