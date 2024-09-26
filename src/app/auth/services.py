@@ -22,6 +22,7 @@ from .schemas import (
     UserCreate,
     BusinessProfileCreate,
     BusinessProfileUpdate,
+    UserRead,
 )
 
 from .utils import generate_passwd_hash, send_verification_code
@@ -56,7 +57,7 @@ class UserService:
 
         return result.all()
 
-    async def get_user_by_email(self, email: str, session: AsyncSession):
+    async def get_user_by_email(self, email: str, session: AsyncSession) -> UserRead:
         statement = (
             select(User)
             .where(User.email == email)
@@ -71,9 +72,9 @@ class UserService:
 
         result = await session.exec(statement)
 
-        user = result.first()
+        user = result.first().model_dump()
 
-        return user
+        return UserRead(**user)
 
     async def get_user_by_uid(self, uid: UUID, session: AsyncSession):
         statement = (
@@ -90,9 +91,9 @@ class UserService:
 
         result = await session.exec(statement)
 
-        user = result.first()
+        user = result.first().model_dump()
 
-        return user
+        return UserRead(**user)
 
     async def user_exists(self, email, session: AsyncSession):
         user = await self.get_user_by_email(email, session)
