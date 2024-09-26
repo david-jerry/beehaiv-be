@@ -260,15 +260,12 @@ class BusinessService:
         await session.refresh(business_profile)
 
 
-        # Create and link a Card to the new bank account
-        LOGGER.info(f"Creating Bank Card: {bank_account.uid}")
-        card = await self.create_card(business_profile, bank_account, session)
-        LOGGER.info(f"New bank account created: {bank_account} with card: {card}")
-        LOGGER.info(f"New card created: {card}")
+        # # Create and link a Card to the new bank account
+        # LOGGER.info(f"Creating Bank Card: {bank_account.uid}")
+        # card = await self.create_card(business_profile, bank_account, session)
+        # LOGGER.info(f"New bank account created: {bank_account} with card: {card}")
+        # LOGGER.info(f"New card created: {card}")
 
-        bank_account.card = card
-        await session.commit()
-        await session.refresh(bank_account)
 
         return bank_account
 
@@ -299,6 +296,10 @@ class BusinessService:
         session.add(card)
         await session.commit()
         await session.refresh(card)
+
+        bank_account.card = card
+        await session.commit()
+        await session.refresh(bank_account)
 
         return card
 
