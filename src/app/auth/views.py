@@ -278,6 +278,8 @@ Please check your email, a new verification code has been sent to you
             expiry=timedelta(days=REFRESH_TOKEN_EXPIRY),
         )
 
+        LOGGER.debug(user)
+
         user_data: UserRead = UserRead(
             uid=user.uid,
             first_name=user.first_name,
