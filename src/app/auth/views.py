@@ -280,36 +280,36 @@ Please check your email, a new verification code has been sent to you
 
         LOGGER.debug(user.business_profiles)
 
-        user_data: UserRead = UserRead(
-            uid=user.uid,
-            first_name=user.first_name,
-            last_name=user.last_name,
-            address=user.address,
-            email=user.email,
-            phone_number=user.phone_number,
-            apartment=user.apartment,
-            city=user.city,
-            state=user.state,
-            zip=user.zip,
-            country=user.country,
-            domain=user.domain,
-            image=user.image,
-            ip_address=user.ip_address,
-            is_blocked=user.is_blocked,
-            joined=user.joined,
-            role=user.role,
-            updated_at=user.updated_at,
-            business_profiles=user.business_profiles,
-            transactions=user.transactions,
-            loans=user.loans,
-            verified_emails=user.verified_emails,
-        )
+        # user_data: UserRead = UserRead(
+        #     uid=user.uid,
+        #     first_name=user.first_name,
+        #     last_name=user.last_name,
+        #     address=user.address,
+        #     email=user.email,
+        #     phone_number=user.phone_number,
+        #     apartment=user.apartment,
+        #     city=user.city,
+        #     state=user.state,
+        #     zip=user.zip,
+        #     country=user.country,
+        #     domain=user.domain,
+        #     image=user.image,
+        #     ip_address=user.ip_address,
+        #     is_blocked=user.is_blocked,
+        #     joined=user.joined,
+        #     role=user.role,
+        #     updated_at=user.updated_at,
+        #     business_profiles=user.business_profiles,
+        #     transactions=user.transactions,
+        #     loans=user.loans,
+        #     verified_emails=user.verified_emails,
+        # )
 
         return {
             "message": "Login successful",
             "access_token": access_token,
             "refresh_token": refresh_token,
-            "user": user_data,
+            "user": user,
         }
 
 
