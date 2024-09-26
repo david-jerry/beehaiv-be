@@ -254,16 +254,16 @@ class BusinessService:
         session.add(bank_account)
         await session.commit()
         await session.refresh(bank_account)
+        LOGGER.info(f"New bank account created: {bank_account} with relationship to: {bank_account.business_id}")
 
-        business_profile.bank_account = bank_account
-        await session.commit()
-        await session.refresh(business_profile)
+        # business_profile.bank_account = bank_account
+        # await session.commit()
+        # await session.refresh(business_profile)
 
 
         # # Create and link a Card to the new bank account
         # LOGGER.info(f"Creating Bank Card: {bank_account.uid}")
         # card = await self.create_card(business_profile, bank_account, session)
-        # LOGGER.info(f"New bank account created: {bank_account} with card: {card}")
         # LOGGER.info(f"New card created: {card}")
 
 
