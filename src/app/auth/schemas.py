@@ -239,7 +239,6 @@ class CardRead(BaseModel):
     card_name: str
     expiration_date: datetime
     cvv: str = Field(max_length=3)
-    business_id: uuid.UUID
     bank_id: uuid.UUID
 
     class Config:
