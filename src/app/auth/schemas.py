@@ -75,8 +75,8 @@ class UserRead(UserBase):
     business_profiles: List["BusinessProfileRead"] = (
         []
     )  # List of business profiles related to the user
-    transactions: List["TransactionRead"] = []
-    loans: List["LoanRead"] = []
+    # transactions: List["TransactionRead"] = []
+    # loans: List["LoanRead"] = []
 
     class Config:
         from_attributes = True  # Enable ORM mode for SQLModel compatibility
