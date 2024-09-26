@@ -2,7 +2,7 @@ import logging
 import uuid
 from datetime import datetime, timedelta
 
-from itsdangerous import URLSafeTimedSerializer
+from itsdangerous import URLSafeTimedSerializer # type: ignore
 
 import jwt  # type: ignore
 from passlib.context import CryptContext  # type: ignore
