@@ -31,7 +31,7 @@ class TransactionService:
             func.date(TransactionHistory.created_at).label('date'),
             func.sum(
                 case(
-                    (TransactionHistory.transaction_type == "debit", TransactionHistory.amount),
+                    (TransactionHistory.transaction_type in ("transfer", "withdrawal"), TransactionHistory.amount),
                     else_=0
                 )
             ).label('total_debits'),
