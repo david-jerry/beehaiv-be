@@ -28,12 +28,22 @@ from src.errors import (
 class TransactionService:
     async def get_transaction_summary(self, user: User, session: AsyncSession):
         query = (select(
-            cast(TransactionHistory.created_at, Date).label("date"),  # Group by date (day)
-            func.sum(case([(TransactionHistory.transaction_type == 'debit', TransactionHistory.amount)], else_=0)).label("total_debits"),
-            func.sum(case([(TransactionHistory.transaction_type == 'deposit', TransactionHistory.amount)], else_=0)).label("total_deposits"),
+            func.date(TransactionHistory.created_at).label('date'),
+            func.sum(
+                case(
+                    (TransactionHistory.transaction_type == "debit", TransactionHistory.amount),
+                    else_=0
+                )
+            ).label('total_debits'),
+            func.sum(
+                case(
+                    (TransactionHistory.transaction_type == "deposit", TransactionHistory.amount),
+                    else_=0
+                )
+            ).label('total_deposits')
         )
-        .where(TransactionHistory.user_id == user.uid)  # Filter by user_id
-        .group_by(cast(TransactionHistory.created_at, Date))  # G)
+        .group_by(func.date(TransactionHistory.created_at))
+        .order_by(func.date(TransactionHistory.created_at))
         )
 
         result = await session.execute(query)
