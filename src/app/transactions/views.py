@@ -349,7 +349,7 @@ async def all_transactions(
     return transactions
 
 
-@transaction_router.get("/summary", status_code=status.HTTP_200_OK)
+@transaction_router.get("/summary", status_code=status.HTTP_200_OK, response_model=List[TransactionSummary])
 async def get_transaction_summary(user: User = Depends(get_current_user), session: AsyncSession = Depends(get_session)):
     """
     Retrieve a summary of transactions for the authenticated user, grouped by day.
