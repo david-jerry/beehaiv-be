@@ -25,6 +25,7 @@ from .schemas import (
     InternationalTransferSchema,
     TransactionCreate,
     TransactionRead,
+    TransactionSummary,
     TransactionUpdate,
     WithdrawalSchema,
 )
@@ -346,6 +347,51 @@ async def all_transactions(
     transactions = await transaction_service.get_all_transactions(session, user)
 
     return transactions
+
+
+@transaction_router.get("/summary", status_code=status.HTTP_200_OK, response_model=TransactionSummary)
+async def get_transaction_summary(user: User = Depends(get_current_user), session: AsyncSession = Depends(get_session)):
+    """
+    Retrieve a summary of transactions for the authenticated user, grouped by day.
+
+    This endpoint provides a breakdown of transactions for the current user,
+    grouping them by day and calculating the total debits (outgoing transactions)
+    and total deposits (incoming transactions) for each day.
+
+    Args:
+        user (User): The currently authenticated user, obtained via dependency injection.
+        session (AsyncSession): The database session used to interact with the database, injected via dependency.
+
+    Returns:
+        TransactionSummary: A list of daily transaction summaries, where each summary contains:
+            - date (datetime): The day the transactions occurred.
+            - total_debits (float): The total debit amount (outgoing transactions) for that day.
+            - total_deposits (float): The total deposit amount (incoming transactions) for that day.
+
+    Response:
+        200 OK: The transaction summary is successfully returned.
+        401 Unauthorized: The user is not authenticated.
+        500 Internal Server Error: An error occurred while processing the request.
+
+    Example:
+        GET /transactions/summary
+
+        Response:
+        [
+            {
+                "date": "2024-09-19",
+                "total_debits": 500.00,
+                "total_deposits": 1200.00
+            },
+            {
+                "date": "2024-09-18",
+                "total_debits": 200.00,
+                "total_deposits": 600.00
+            }
+        ]
+    """
+    response = await transaction_service.get_transaction_summary(user, session)
+    return response
 
 
 @transaction_router.get(

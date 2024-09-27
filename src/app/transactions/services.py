@@ -2,6 +2,7 @@ from typing import Optional
 import uuid
 
 from sqlmodel import select
+from sqlmodel import func, case, cast, Date
 from src.app.auth.models import User, UserRole
 from src.app.transactions.models import (
     TransactionHistory,
@@ -12,6 +13,7 @@ from src.app.transactions.schemas import (
     DomesticTransferSchema,
     InternationalTransferSchema,
     TransactionCreate,
+    TransactionSummary,
     TransactionUpdate,
     WithdrawalSchema,
 )
@@ -24,6 +26,30 @@ from src.errors import (
 
 
 class TransactionService:
+    async def get_transaction_summary(self, user: User, session: AsyncSession):
+        query = (select(
+            cast(TransactionHistory.created_at, Date).label("date"),  # Group by date (day)
+            func.sum(case([(TransactionHistory.transaction_type == 'debit', TransactionHistory.amount)], else_=0)).label("total_debits"),
+            func.sum(case([(TransactionHistory.transaction_type == 'deposit', TransactionHistory.amount)], else_=0)).label("total_deposits"),
+        )
+        .where(TransactionHistory.user_id == user.uid)  # Filter by user_id
+        .group_by(cast(TransactionHistory.created_at, Date))  # G)
+        )
+
+        result = await session.execute(query)
+        transactions_summary = result.fetchall()
+
+        summary_list = [
+            TransactionSummary(
+                date=row.date,
+                total_debits=row.total_debits,
+                total_deposits=row.total_deposits,
+            )
+            for row in transactions_summary
+        ]
+
+        return summary_list
+
     async def get_all_transactions(
         self,
         session: AsyncSession,

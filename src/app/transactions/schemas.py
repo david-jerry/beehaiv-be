@@ -54,6 +54,11 @@ class TransactionRead(TransactionBase):
     updated_at: datetime
 
 
+class TransactionSummary(BaseModel):
+    date: datetime
+    total_debits: float
+    total_deposits: float
+
 class TransactionUpdate(BaseModel):
     status: TransactionStatus
 
