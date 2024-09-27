@@ -47,7 +47,7 @@ async def create_loan_record(
     """
     loan: Loan = await loan_service.create_new_loan(session, user, loan_data)
 
-    return {"message": "Loan Created!", "loan": loan}
+    return loan
 
 
 @loan_router.patch("/{uid}", status_code=status.HTTP_200_OK, response_model=LoanRead)
@@ -76,7 +76,7 @@ async def update_loan_record(
     """
     loan: Loan = await loan_service.update_loan(uid, user, loan_data, session)
 
-    return {"message": "Loan Updated!", "loan": loan}
+    return loan
 
 
 @loan_router.get("", status_code=status.HTTP_200_OK, response_model=List[LoanRead])
@@ -98,7 +98,7 @@ async def get_all_loans(
     """
     loans: List[Loan] = await loan_service.get_all_loans(session, user)
 
-    return {"message": "Ok!", "loans": loans}
+    return loans
 
 
 @loan_router.get("/user-loans", status_code=status.HTTP_200_OK, response_model=List[LoanRead])
@@ -120,7 +120,7 @@ async def get_user_loans(
     """
     loans: List[Loan] = await loan_service.get_all_user_loans(session, user)
 
-    return {"message": "Ok!", "loans": loans}
+    return loans
 
 
 @loan_router.get("/{uid}", status_code=status.HTTP_200_OK, response_model=LoanRead)
@@ -150,7 +150,7 @@ async def get_loan_by_uid(
     if loan is None:
         raise LoanNotFound()
 
-    return {"message": "Ok!", "loan": loan}
+    return loan
 
 
 @loan_router.delete("/{uid}", status_code=status.HTTP_200_OK)
