@@ -73,10 +73,7 @@ async def create_transaction_record(
         session, user, transaction_data
     )
 
-    return {
-        "message": "Transaction Created!",
-        "transaction": transaction
-    }
+    return transaction
 
 
 @transaction_router.post(
@@ -141,10 +138,7 @@ async def make_domestic_transfers(
         await session.commit()
         await session.refresh(bank_account)
 
-    return {
-        "message": "Transfer Successful!",
-        "transaction": transaction,
-    }
+    return transaction
 
 
 @transaction_router.post(
@@ -208,10 +202,7 @@ async def make_international_transfers(
         await session.commit()
         await session.refresh(bank_account)
 
-    return {
-        "message": "Transfer Successful!",
-        "transaction": transaction,
-    }
+    return transaction
 
 
 @transaction_router.post(
@@ -271,10 +262,7 @@ async def withdraw_from_balance(
         await session.commit()
         await session.refresh(bank_account)
 
-    return {
-        "message": "Withdrawal Successful!",
-        "transaction": transaction,
-    }
+    return transaction
 
 
 @transaction_router.patch(
@@ -333,10 +321,7 @@ async def update_transaction(
     await session.commit()
     await session.refresh(bank_account)
 
-    return {
-        "message": "Update Successful!",
-        "transaction": transaction,
-    }
+    return transaction
 
 
 @transaction_router.get(
@@ -360,10 +345,7 @@ async def all_transactions(
     """
     transactions = await transaction_service.get_all_transactions(session, user)
 
-    return {
-        "message": "Ok!",
-        "transaction": transactions,
-    }
+    return transactions
 
 
 @transaction_router.get(
@@ -397,7 +379,4 @@ async def get_transaction(
     if transaction is None:
         raise TransactionNotFound()
 
-    return {
-        "message": "Ok!",
-        "transaction": transaction,
-    }
+    return transaction
