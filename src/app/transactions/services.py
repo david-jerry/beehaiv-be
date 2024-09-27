@@ -31,13 +31,16 @@ class TransactionService:
             func.date(TransactionHistory.created_at).label('date'),
             func.sum(
                 case(
-                    [
-                        (TransactionHistory.transaction_type == "withdrawal", TransactionHistory.amount),
-                        (TransactionHistory.transaction_type == "transfer", TransactionHistory.amount)
-                    ],
+                    (TransactionHistory.transaction_type =="transfer", TransactionHistory.amount),
                     else_=0
                 )
             ).label('total_debits'),
+            func.sum(
+                case(
+                    (TransactionHistory.transaction_type =="withdrawal", TransactionHistory.amount),
+                    else_=0
+                )
+            ).label('total_withdrawn'),
             func.sum(
                 case(
                     (TransactionHistory.transaction_type == "deposit", TransactionHistory.amount),
@@ -55,7 +58,7 @@ class TransactionService:
         summary_list = [
             TransactionSummary(
                 date=row.date,
-                total_debits=row.total_debits,
+                total_debits=row.total_debits + row.total_withdrawn,
                 total_deposits=row.total_deposits,
             )
             for row in transactions_summary
