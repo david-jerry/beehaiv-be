@@ -178,9 +178,7 @@ async def verify_user_account(token: str, session: AsyncSession = Depends(get_se
     LOGGER.info(user_email)
 
     if user_email:
-        user_read = await user_service.get_user_by_email(user_email, session)
-        user_dict = user_read.model_dump()
-        user: User = User(**user_dict)
+        user = await user_service.get_user_by_email(user_email, session)
         if not user:
             raise UserNotFound()
 
@@ -260,7 +258,7 @@ async def login_users(
         code = await send_verification_code(user, user.domain)
         return {
             "message": """
-Please check your email, a new verification code has been sent to you
+    Please check your email, a new verification code has been sent to you
             """,
             "code": code,
             "user": user,

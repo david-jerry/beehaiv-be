@@ -38,17 +38,11 @@ class UserService:
             .options(
                 selectinload(User.verified_emails),
                 selectinload(User.business_profiles),
-                # selectinload(User.bank_accounts),
-                selectinload(User.transactions),
-                selectinload(User.loans),
             )
             if user.role == UserRole.MANAGER
             else select(User).options(
                 selectinload(User.verified_emails),
                 selectinload(User.business_profiles),
-                # selectinload(User.bank_accounts),
-                selectinload(User.transactions),
-                selectinload(User.loans),
             )
         )
 
